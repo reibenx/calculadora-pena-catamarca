@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculo de Pena – Juzgado de Ejecución Penal de Segunda Nominación de la Prov. de Catamarca, Rep. Argentina</title>
+    <style>
+        * {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(90deg, #003366, #0066cc);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 5px 5px 10px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+            transform: perspective(500px) rotateX(5deg);
+        }
+        
+        .header p {
+            margin: 15px 0 0;
+            opacity: 0.9;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        
+        .form-section h2 {
+            margin-top: 0;
+            color: #003366;
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 10px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1.1rem;
+        }
+        
+        input:focus, select:focus {
+            border-color: #0066cc;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+        }
+        
+        .periodo-detencion {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .periodo-detencion input {
+            flex: 1;
+        }
+        
+        .btn {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .btn:hover {
+            background: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            font-size: 1.3rem;
+            padding: 15px 30px;
+            margin-top: 20px;
+        }
+        
+        .btn-success:hover {
+            background: #219653;
+        }
+        
+        .btn-pdf {
+            background: #8e44ad;
+            margin-top: 20px;
+        }
+        
+        .btn-pdf:hover {
+            background: #7d3c98;
+        }
+        
+        .resultados {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f4fc;
+            border-radius: 10px;
+            border-left: 5px solid #0066cc;
+        }
+        
+        .resultados h2 {
+            color: #003366;
+            margin-top: 0;
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .resultados h3 {
+            color: #003366;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .resultado-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            font-size: 1.1rem;
+        }
+        
+        .resultado-item strong {
+            color: #003366;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .beneficio-item {
+            background: #d4edda;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .alerta-item {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .error-item {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .footer {
+            background: #003366;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .footer p {
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 4px 4px 8px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+            transform: perspective(500px) rotateX(5deg);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .info-box {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .periodo-detencion {
+                flex-direction: column;
+            }
+            
+            .periodo-detencion input {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Calculo de Pena</h1>
+            <p>Juzgado de Ejecución Penal de Segunda Nominación de la Prov. de Catamarca, Rep. Argentina</p>
+        </div>
+        
+        <div class="content">
+            <div class="info-box">
+                <strong>Información importante:</strong> Esta calculadora aplica la legislación vigente en Argentina (Ley 24.660 y modificaciones). Los beneficios dependen de la fecha del hecho, tipo de delito y reincidencia.
+            </div>
+            
+            <form id="condenaForm">
+                <div class="form-section">
+                    <h2>Datos Personales</h2>
+                    
+                    <div class="form-group">
+                        <label for="nombreCondenado">Nombre del condenado:</label>
+                        <input type="text" id="nombreCondenado" placeholder="Apellido y Nombre" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="delito">Delito:</label>
+                        <input type="text" id="delito" placeholder="Descripción del delito" required>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h2>Datos de la Condena</h2>
+                    
+                    <div class="form-group">
+                        <label for="tipoCondena">Tipo de condena:</label>
+                        <select id="tipoCondena" required>
+                            <option value="">Seleccione...</option>
+                            <option value="temporal">Prisión efectiva temporal</option>
+                            <option value="perpetua">Prisión efectiva perpetua</option>
+                        </select>
+                    </div>
+                    
+                    <div id="penaTemporal" class="form-group hidden">
+                        <label for="penaImpuesta">Pena impuesta (años, meses, días):</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="penaAnos" placeholder="Años" min="0">
+                            <input type="number" id="penaMeses" placeholder="Meses" min="0" max="11">
+                            <input type="number" id="penaDias" placeholder="Días" min="0" max="30">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fechaInicioCondena">Fecha de inicio de condena:</label>
+                        <input type="date" id="fechaInicioCondena" required>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h2>Detenciones Preventivas</h2>
+                    <p>Ingrese todos los períodos de detención previos a la condena:</p>
+                    
+                    <div id="detencionesContainer">
+                        <div class="periodo-detencion">
+                            <input type="date" placeholder="Fecha inicio" class="fechaInicio" required>
+                            <input type="date" placeholder="Fecha fin" class="fechaFin" required>
+                            <button type="button" class="btn btn-danger" onclick="eliminarPeriodo(this)">Eliminar</button>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn" onclick="agregarPeriodo()">+ Agregar período</button>
+                </div>
+                
+                <div class="form-section">
+                    <h2>Datos del Hecho</h2>
+                    
+                    <div class="form-group">
+                        <label for="fechaHecho">Fecha del hecho:</label>
+                        <input type="date" id="fechaHecho" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tipoDelito">Tipo de delito:</label>
+                        <select id="tipoDelito" required>
+                            <option value="">Seleccione...</option>
+                            <option value="56bis">Art. 56 bis (Ley 24.660)</option>
+                            <option value="otro">Otro delito</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reincidente">¿Es reincidente (Art. 50 CP)?</label>
+                        <select id="reincidente" required>
+                            <option value="">Seleccione...</option>
+                            <option value="si">Sí</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success">Calcular Condena</button>
+            </form>
+            
+            <div id="resultados" class="resultados hidden">
+                <h2>Informe de Cómputo de Condena</h2>
+                <div id="resultadosContainer"></div>
+                <button id="btnPDF" class="btn btn-pdf">Generar PDF para Imprimir</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Juzgado de Ejecución Penal de Segunda Nominación de la Prov. de Catamarca, Rep. Argentina</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('condenaForm').addEventListener('submit', calcularCondena);
+            document.getElementById('tipoCondena').addEventListener('change', togglePenaTemporal);
+            
+            // Asignar evento al botón PDF cuando esté disponible
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.id === 'btnPDF') {
+                    generarPDF();
+                }
+            });
+        });
+        
+        function togglePenaTemporal() {
+            const tipoCondena = document.getElementById('tipoCondena').value;
+            const penaTemporalDiv = document.getElementById('penaTemporal');
+            
+            if (tipoCondena === 'temporal') {
+                penaTemporalDiv.classList.remove('hidden');
+                document.getElementById('penaAnos').required = true;
+                document.getElementById('penaMeses').required = true;
+                document.getElementById('penaDias').required = true;
+            } else {
+                penaTemporalDiv.classList.add('hidden');
+                document.getElementById('penaAnos').required = false;
+                document.getElementById('penaMeses').required = false;
+                document.getElementById('penaDias').required = false;
+            }
+        }
+        
+        function agregarPeriodo() {
+            const container = document.getElementById('detencionesContainer');
+            const nuevoPeriodo = document.createElement('div');
+            nuevoPeriodo.className = 'periodo-detencion';
+            nuevoPeriodo.innerHTML = `
+                <input type="date" placeholder="Fecha inicio" class="fechaInicio" required>
+                <input type="date" placeholder="Fecha fin" class="fechaFin" required>
+                <button type="button" class="btn btn-danger" onclick="eliminarPeriodo(this)">Eliminar</button>
+            `;
+            container.appendChild(nuevoPeriodo);
+        }
+        
+        function eliminarPeriodo(boton) {
+            const container = document.getElementById('detencionesContainer');
+            if (container.children.length > 1) {
+                boton.parentElement.remove();
+            } else {
+                alert('Debe mantener al menos un período de detención');
+            }
+        }
+        
+        function convertirDiasAMDM(dias) {
+            let años = Math.floor(dias / 365);
+            let resto = dias % 365;
+            let meses = Math.floor(resto / 30);
+            let diasRestantes = resto % 30;
+            
+            let resultado = '';
+            if (años > 0) {
+                resultado += años + ' año' + (años !== 1 ? 's' : '');
+            }
+            if (meses > 0) {
+                if (resultado) resultado += ', ';
+                resultado += meses + ' mes' + (meses !== 1 ? 'es' : '');
+            }
+            if (diasRestantes > 0) {
+                if (resultado) resultado += ' y ';
+                resultado += diasRestantes + ' día' + (diasRestantes !== 1 ? 's' : '');
+            }
+            return resultado || '0 días';
+        }
+        
+        function formatearFecha(fecha) {
+            const dia = fecha.getDate().toString().padStart(2, '0');
+            const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+            const año = fecha.getFullYear();
+            return `${dia}/${mes}/${año}`;
+        }
+        
+        function calcularCondena(e) {
+            e.preventDefault();
+            
+            // Obtener datos del formulario
+            const nombreCondenado = document.getElementById('nombreCondenado').value;
+            const delito = document.getElementById('delito').value;
+            const tipoCondena = document.getElementById('tipoCondena').value;
+            const fechaInicioCondena = new Date(document.getElementById('fechaInicioCondena').value);
+            const fechaHecho = new Date(document.getElementById('fechaHecho').value);
+            const tipoDelito = document.getElementById('tipoDelito').value;
+            const reincidente = document.getElementById('reincidente').value;
+            
+            let penaTotalDias = 0;
+            let penaEfectivaDias = 0;
+            let fechaFinCondena = null;
+            
+            // Si es condena temporal, calcular la pena
+            if (tipoCondena === 'temporal') {
+                const penaAnos = parseInt(document.getElementById('penaAnos').value) || 0;
+                const penaMeses = parseInt(document.getElementById('penaMeses').value) || 0;
+                const penaDias = parseInt(document.getElementById('penaDias').value) || 0;
+                
+                // Convertir pena a días
+                penaTotalDias = (penaAnos * 365) + (penaMeses * 30) + penaDias;
+            }
+            
+            // Calcular períodos de detención preventiva
+            const periodosDetencion = [];
+            const periodosElements = document.querySelectorAll('.periodo-detencion');
+            
+            periodosElements.forEach(periodo => {
+                const fechaInicio = new Date(periodo.querySelector('.fechaInicio').value);
+                const fechaFin = new Date(periodo.querySelector('.fechaFin').value);
+                
+                if (fechaInicio && fechaFin && fechaInicio <= fechaFin) {
+                    periodosDetencion.push({ inicio: fechaInicio, fin: fechaFin });
+                }
+            });
+            
+            // Calcular días totales de detención preventiva
+            let diasDetencionPreventiva = 0;
+            periodosDetencion.forEach(periodo => {
+                const diffTime = Math.abs(periodo.fin - periodo.inicio);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                diasDetencionPreventiva += diffDays;
+            });
+            
+            // Calcular pena efectiva
+            if (tipoCondena === 'temporal') {
+                penaEfectivaDias = penaTotalDias - diasDetencionPreventiva;
+                
+                // Calcular fecha de fin de condena
+                fechaFinCondena = new Date(fechaInicioCondena);
+                fechaFinCondena.setDate(fechaFinCondena.getDate() + penaEfectivaDias);
+            }
+            
+            // Determinar beneficios según legislación
+            const fechaLimite = new Date('2017-07-28');
+            const esPosterior = fechaHecho >= fechaLimite;
+            
+            let beneficios = [];
+            let alertas = [];
+            
+            // Si es condena perpetua, no hay beneficios
+            if (tipoCondena === 'perpetua') {
+                alertas.push({
+                    mensaje: 'Condena perpetua: No corresponde el acceso a beneficios',
+                    tipo: 'error'
+                });
+            } 
+            // Caso especial: Delitos Art. 56 bis con hechos posteriores al 28/07/2017
+            else if (tipoDelito === '56bis' && esPosterior) {
+                const fechaRegimenPreparatorio = new Date(fechaFinCondena);
+                fechaRegimenPreparatorio.setFullYear(fechaRegimenPreparatorio.getFullYear() - 2);
+                
+                beneficios.push({
+                    tipo: 'Régimen Preparatorio de Libertad (Art. 56 quater)',
+                    fecha: formatearFecha(fechaRegimenPreparatorio)
+                });
+                
+                alertas.push({
+                    mensaje: 'No puede acceder a otros beneficios por ser delito del Art. 56 bis con hecho posterior al 28/07/2017',
+                    tipo: 'alerta'
+                });
+            } 
+            // Otros casos para condenas temporales
+            else {
+                // Período de prueba (solo para hechos posteriores al 28/07/2017)
+                if (esPosterior) {
+                    const fechaPeriodoPrueba = new Date(fechaInicioCondena);
+                    fechaPeriodoPrueba.setDate(fechaPeriodoPrueba.getDate() + Math.floor(penaEfectivaDias / 2));
+                    
+                    beneficios.push({
+                        tipo: 'Período de Prueba',
+                        fecha: formatearFecha(fechaPeriodoPrueba)
+                    });
+                    
+                    // Salidas transitorias según duración de la pena
+                    let fechaSalidasTransitorias = new Date(fechaPeriodoPrueba);
+                    
+                    if (penaTotalDias > 3650) { // Más de 10 años
+                        fechaSalidasTransitorias.setFullYear(fechaSalidasTransitorias.getFullYear() + 1);
+                    } else if (penaTotalDias > 1825) { // Más de 5 años
+                        fechaSalidasTransitorias.setMonth(fechaSalidasTransitorias.getMonth() + 6);
+                    }
+                    
+                    beneficios.push({
+                        tipo: 'Salidas Transitorias',
+                        fecha: formatearFecha(fechaSalidasTransitorias)
+                    });
+                }
+                
+                // Libertad asistida
+                const mesesAntes = esPosterior ? 3 : 6;
+                const fechaLibertadAsistida = new Date(fechaFinCondena);
+                fechaLibertadAsistida.setMonth(fechaLibertadAsistida.getMonth() - mesesAntes);
+                
+                beneficios.push({
+                    tipo: 'Libertad Asistida',
+                    fecha: formatearFecha(fechaLibertadAsistida)
+                });
+                
+                // Libertad condicional (solo si no es reincidente)
+                if (reincidente === 'no') {
+                    const fraccionCondena = Math.floor(penaEfectivaDias * 2 / 3);
+                    const fechaLibertadCondicional = new Date(fechaInicioCondena);
+                    fechaLibertadCondicional.setDate(fechaLibertadCondicional.getDate() + fraccionCondena);
+                    
+                    beneficios.push({
+                        tipo: 'Libertad Condicional',
+                        fecha: formatearFecha(fechaLibertadCondicional)
+                    });
+                } else {
+                    alertas.push({
+                        mensaje: 'No puede acceder a libertad condicional por ser reincidente (Art. 50 CP)',
+                        tipo: 'error'
+                    });
+                }
+            }
+            
+            // Mostrar resultados
+            mostrarResultados({
+                nombreCondenado,
+                delito,
+                fechaHecho: formatearFecha(fechaHecho),
+                reincidente: reincidente === 'si',
+                tipoCondena,
+                penaTotalDias,
+                diasDetencionPreventiva,
+                penaEfectivaDias,
+                fechaFinCondena: fechaFinCondena ? formatearFecha(fechaFinCondena) : 'No aplica',
+                beneficios,
+                alertas
+            });
+        }
+        
+        function mostrarResultados(resultados) {
+            const resultadosDiv = document.getElementById('resultados');
+            const container = document.getElementById('resultadosContainer');
+            
+            let html = `
+                <div class="resultado-item">
+                    <strong>Nombre del condenado:</strong> ${resultados.nombreCondenado}
+                </div>
+                <div class="resultado-item">
+                    <strong>Delito:</strong> ${resultados.delito}
+                </div>
+                <div class="resultado-item">
+                    <strong>Fecha del hecho:</strong> ${resultados.fechaHecho}
+                </div>
+                <div class="resultado-item">
+                    <strong>Reincidente:</strong> ${resultados.reincidente ? 'Sí' : 'No'}
+                </div>
+                <div class="resultado-item">
+                    <strong>Tipo de condena:</strong> ${resultados.tipoCondena === 'temporal' ? 'Prisión efectiva temporal' : 'Prisión efectiva perpetua'}
+                </div>
+            `;
+            
+            if (resultados.tipoCondena === 'temporal') {
+                html += `
+                    <div class="resultado-item">
+                        <strong>Pena total impuesta:</strong> ${convertirDiasAMDM(resultados.penaTotalDias)}
+                    </div>
+                    <div class="resultado-item">
+                        <strong>Días de detención preventiva:</strong> ${resultados.diasDetencionPreventiva} días
+                    </div>
+                    <div class="resultado-item">
+                        <strong>Pena efectiva a cumplir:</strong> ${resultados.fechaFinCondena}
+                    </div>
+                `;
+            }
+            
+            // Mostrar beneficios
+            if (resultados.beneficios.length > 0) {
+                html += '<h3>Beneficios Aplicables:</h3>';
+                resultados.beneficios.forEach(beneficio => {
+                    html += `
+                        <div class="resultado-item beneficio-item">
+                            <strong>${beneficio.tipo}:</strong> ${beneficio.fecha}
+                        </div>
+                    `;
+                });
+            }
+            
+            // Mostrar alertas
+            if (resultados.alertas.length > 0) {
+                html += '<h3>Información Importante:</h3>';
+                resultados.alertas.forEach(alerta => {
+                    const clase = alerta.tipo === 'error' ? 'error-item' : 'alerta-item';
+                    html += `
+                        <div class="resultado-item ${clase}">
+                            ${alerta.mensaje}
+                        </div>
+                    `;
+                });
+            }
+            
+            container.innerHTML = html;
+            resultadosDiv.classList.remove('hidden');
+            resultadosDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function generarPDF() {
+            try {
+                const contenido = document.getElementById('resultadosContainer').innerHTML;
+                if (!contenido) {
+                    alert('No hay resultados para generar el PDF');
+                    return;
+                }
+                
+                // Crear una nueva ventana
+                const ventana = window.open('', '_blank');
+                
+                // Verificar si se pudo abrir la ventana
+                if (!ventana) {
+                    alert('No se pudo abrir una nueva ventana. Por favor, permita las ventanas emergentes para este sitio y vuelva a intentarlo.');
+                    return;
+                }
+                
+                // Escribir el contenido en la nueva ventana
+                ventana.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Informe de Cómputo de Condena</title>
+                        <style>
+                            body { 
+                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                                margin: 20px; 
+                                font-size: 14px;
+                                color: #333;
+                            }
+                            h1 { 
+                                color: #003366; 
+                                text-align: center;
+                                font-size: 24px;
+                                margin-bottom: 10px;
+                                text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+                            }
+                            h2 { 
+                                color: #003366; 
+                                font-size: 18px;
+                                margin-top: 20px;
+                                margin-bottom: 15px;
+                                border-bottom: 1px solid #0066cc;
+                                padding-bottom: 5px;
+                                text-align: center;
+                            }
+                            .resultado-item { 
+                                margin-bottom: 15px; 
+                                padding: 15px; 
+                                border: 1px solid #ddd; 
+                                border-radius: 5px;
+                                background: white;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            }
+                            .beneficio-item { 
+                                background-color: #d4edda; 
+                                border-left: 4px solid #27ae60;
+                            }
+                            .alerta-item { 
+                                background-color: #fff3cd; 
+                                border-left: 4px solid #ffc107;
+                            }
+                            .error-item { 
+                                background-color: #f8d7da; 
+                                border-left: 4px solid #dc3545;
+                            }
+                            strong { 
+                                color: #003366; 
+                                font-weight: bold;
+                            }
+                            .footer {
+                                margin-top: 40px;
+                                text-align: center;
+                                font-size: 12px;
+                                color: #666;
+                                border-top: 1px solid #ddd;
+                                padding-top: 10px;
+                            }
+                            .print-btn {
+                                display: block;
+                                margin: 20px auto;
+                                padding: 10px 20px;
+                                background: #0066cc;
+                                color: white;
+                                border: none;
+                                border-radius: 5px;
+                                cursor: pointer;
+                                font-size: 16px;
+                                font-weight: bold;
+                            }
+                            @media print {
+                                .print-btn { display: none; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>Informe de Cómputo de Condena</h1>
+                        <h2>Juzgado de Ejecución Penal de Segunda Nominación</h2>
+                        <h2>Provincia de Catamarca, República Argentina</h2>
+                        ${contenido}
+                        <div class="footer">
+                            <p>Generado el ${new Date().toLocaleDateString('es-AR')}</p>
+                        </div>
+                        <button class="print-btn" onclick="window.print()">Imprimir Documento</button>
+                    </body>
+                    </html>
+                `);
+                
+                // Cerrar el documento para que se renderice correctamente
+                ventana.document.close();
+                
+                // Enfocar la nueva ventana
+                ventana.focus();
+                
+            } catch (error) {
+                console.error('Error al generar PDF:', error);
+                alert('Ocurrió un error al generar el PDF. Por favor, intente nuevamente.');
+            }
+        }
+    </script>
+</body>
+</html>
