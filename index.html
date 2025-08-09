@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juzgado de Ejecución Penal de Segunda Nominación de la Prov. de Catamarca, Rep. Argentina</title>
+    <!-- Scripts de la API de Google -->
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
     <style>
         /* --- ESTILOS GENERALES Y FUENTE --- */
         * {
@@ -58,7 +61,7 @@
             top: 50%;
             left: 40px;
             transform: translateY(-50%);
-            width: 110px; /* Tamaño del logo */
+            width: 80px; /* Tamaño del logo */
             height: auto;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
@@ -306,6 +309,51 @@
             font-size: 1rem;
             color: #0c5460;
         }
+
+        /* --- ESTILOS PARA EL MODAL DE CONFIRMACIÓN --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+        .modal-content h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
         
         /* --- RESPONSIVIDAD --- */
         @media (max-width: 768px) {
@@ -441,6 +489,8 @@
                 <h2>Informe de Cómputo de Condena</h2>
                 <div id="resultadosContainer"></div>
                 <button id="btnPDF" class="btn btn-pdf">Generar PDF para Imprimir</button>
+                <button id="btnGuardarSheets" class="btn" style="background: linear-gradient(145deg, #28a745, #1e7e34);">Guardar en Google Sheets</button>
+                <div id="auth-status" style="margin-top: 15px; font-weight: 500;"></div>
             </div>
         </div>
         
@@ -449,7 +499,31 @@
         </div>
     </div>
 
+    <!-- Modal de Confirmación -->
+    <div id="confirmationModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Confirmación</h3>
+            <p id="modalMessage">¿Está seguro de que desea guardar estos datos en Google Sheets?</p>
+            <div class="modal-buttons">
+                <button id="confirmBtn" class="btn btn-success">Sí, guardar</button>
+                <button id="cancelBtn" class="btn btn-danger">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // --- VARIABLES GLOBALES PARA LA API DE GOOGLE ---
+        // IMPORTANTE: Reemplaza estos valores con tus propias credenciales.
+        const CLIENT_ID = '110247006601-hvbpfqcd0v79tgmiqr9ntc853t9a1vu3.apps.googleusercontent.com';
+        const SPREADSHEET_ID = '1ASWYg5AZbm1AD5h9cQjxZK00Q8RebiuQo3daBYJnj64';
+        const DISCOVERY_DOC = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+        let lastResults = null; // Variable para guardar los últimos resultados calculados
+
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('condenaForm').addEventListener('submit', calcularCondena);
             document.getElementById('tipoCondena').addEventListener('change', togglePenaTemporal);
@@ -458,9 +532,127 @@
                 if (e.target && e.target.id === 'btnPDF') {
                     generarPDF();
                 }
+                if (e.target && e.target.id === 'btnGuardarSheets') {
+                    mostrarConfirmacion('¿Está seguro de que desea guardar estos datos en Google Sheets?', guardarEnSheets);
+                }
+            });
+
+            // Eventos del modal
+            document.getElementById('cancelBtn').addEventListener('click', ocultarConfirmacion);
+            document.getElementById('confirmationModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    ocultarConfirmacion();
+                }
             });
         });
+
+        // --- FUNCIONES DE LA API DE GOOGLE ---
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                discoveryDocs: [DISCOVERY_DOC],
+            });
+            gapiInited = true;
+            maybeEnableButtons();
+        }
+
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: '', // Se define dinámicamente
+            });
+            gisInited = true;
+            maybeEnableButtons();
+        }
+
+        function maybeEnableButtons() {
+            if (gapiInited && gisInited) {
+                document.getElementById('btnGuardarSheets').disabled = false;
+            }
+        }
+
+        function handleAuthClick() {
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    throw (resp);
+                }
+                document.getElementById('auth-status').innerText = '¡Autorizado! Listo para guardar.';
+                await guardarEnSheets(); // Intentar guardar de nuevo después de autorizar
+            };
+
+            if (gapi.client.getToken() === null) {
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            } else {
+                tokenClient.requestAccessToken({prompt: ''});
+            }
+        }
+
+        function guardarEnSheets() {
+            if (!lastResults) {
+                document.getElementById('auth-status').innerText = 'Error: Primero debe calcular una condena.';
+                return;
+            }
+
+            if (gapi.client.getToken() === null) {
+                // Pedir autorización si no está logueado
+                handleAuthClick();
+                return;
+            }
+
+            // Formatear los datos para la hoja de cálculo
+            const datosFila = [
+                lastResults.nombreCondenado,
+                lastResults.delito,
+                lastResults.fechaFinCondena,
+                convertirDiasAMDM(lastResults.penaTotalDias),
+                convertirDiasAMDM(lastResults.penaEfectivaDias),
+                new Date().toLocaleString('es-AR')
+            ];
+
+            const request = {
+                spreadsheetId: SPREADSHEET_ID,
+                range: 'Hoja1!A1', // Asume que los datos se guardan en la "Hoja1"
+                valueInputOption: 'USER_ENTERED',
+                resource: {
+                    values: [datosFila]
+                }
+            };
+
+            document.getElementById('auth-status').innerText = 'Guardando...';
+            gapi.client.sheets.spreadsheets.values.append(request).then(function(response) {
+                document.getElementById('auth-status').innerText = '¡Datos guardados con éxito!';
+            }, function(reason) {
+                console.error('error: ' + reason.result.error.message);
+                document.getElementById('auth-status').innerText = 'Error al guardar. Revise la consola.';
+            });
+        }
+
+        // --- FUNCIONES DEL MODAL ---
+        function mostrarConfirmacion(message, callback) {
+            document.getElementById('modalMessage').textContent = message;
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.add('visible');
+
+            const confirmBtn = document.getElementById('confirmBtn');
+            // Clona el botón para remover event listeners previos
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+            newConfirmBtn.addEventListener('click', () => {
+                callback();
+                ocultarConfirmacion();
+            });
+        }
+
+        function ocultarConfirmacion() {
+            document.getElementById('confirmationModal').classList.remove('visible');
+        }
         
+        // --- FUNCIONES DE LA CALCULADORA (EXISTENTES) ---
         function togglePenaTemporal() {
             const tipoCondena = document.getElementById('tipoCondena').value;
             const penaTemporalDiv = document.getElementById('penaTemporal');
@@ -518,7 +710,6 @@
             if (!fecha || !(fecha instanceof Date) || isNaN(fecha)) {
                 return 'Fecha inválida';
             }
-            // Usar métodos UTC para evitar corrupciones por zona horaria
             const dia = fecha.getUTCDate().toString().padStart(2, '0');
             const mes = (fecha.getUTCMonth() + 1).toString().padStart(2, '0');
             const año = fecha.getUTCFullYear();
@@ -545,8 +736,8 @@
 
         function calcularCondena(e) {
             e.preventDefault();
+            lastResults = null; // Limpiar resultados previos
 
-            // --- Validación de Entradas ---
             const nombreCondenado = document.getElementById('nombreCondenado').value;
             const delito = document.getElementById('delito').value;
             const tipoCondena = document.getElementById('tipoCondena').value;
@@ -555,7 +746,6 @@
             const tipoDelito = document.getElementById('tipoDelito').value;
             const reincidente = document.getElementById('reincidente').value;
 
-            // Validar que las fechas principales no estén vacías
             if (!fechaInicioCondenaStr || !fechaHechoStr) {
                 const resultadosDiv = document.getElementById('resultados');
                 const container = document.getElementById('resultadosContainer');
@@ -565,7 +755,6 @@
                 return;
             }
 
-            // Parsear fechas como UTC para evitar errores de zona horaria
             const fechaInicioCondena = new Date(fechaInicioCondenaStr + 'T00:00:00Z');
             const fechaHecho = new Date(fechaHechoStr + 'T00:00:00Z');
             
@@ -578,13 +767,11 @@
                 const penaMeses = parseInt(document.getElementById('penaMeses').value) || 0;
                 const penaDias = parseInt(document.getElementById('penaDias').value) || 0;
 
-                // 1. Calcular fecha de fin de pena bruta (sin descuentos)
                 let fechaFinPenaBruta = new Date(fechaInicioCondena);
                 fechaFinPenaBruta.setUTCFullYear(fechaFinPenaBruta.getUTCFullYear() + penaAnos);
                 fechaFinPenaBruta.setUTCMonth(fechaFinPenaBruta.getUTCMonth() + penaMeses);
                 fechaFinPenaBruta.setUTCDate(fechaFinPenaBruta.getUTCDate() + penaDias);
                 
-                // 2. Calcular días de detención
                 let diasDetencionPreventiva = 0;
                 const periodosElements = document.querySelectorAll('.periodo-detencion');
                 periodosElements.forEach(periodo => {
@@ -601,11 +788,9 @@
                     }
                 });
 
-                // 3. Calcular fecha de fin de condena real (con descuentos)
                 fechaFinCondena = new Date(fechaFinPenaBruta);
                 fechaFinCondena.setUTCDate(fechaFinCondena.getUTCDate() - diasDetencionPreventiva);
                 
-                // 4. Calcular días totales y efectivos para mostrar
                 const diffPenaTotalMs = fechaFinPenaBruta.getTime() - fechaInicioCondena.getTime();
                 penaTotalDias = Math.round(diffPenaTotalMs / (1000 * 60 * 60 * 24));
                 if (penaTotalDias < 0) penaTotalDias = 0;
@@ -693,7 +878,7 @@
                 }
             }
             
-            mostrarResultados({
+            lastResults = {
                 nombreCondenado,
                 delito,
                 fechaHecho: formatearFecha(fechaHecho),
@@ -704,7 +889,9 @@
                 fechaFinCondena: fechaFinCondena ? formatearFecha(fechaFinCondena) : 'No aplica',
                 beneficios,
                 alertas
-            });
+            };
+            
+            mostrarResultados(lastResults);
         }
         
         function mostrarResultados(resultados) {
@@ -892,4 +1079,3 @@
     </script>
 </body>
 </html>
-
