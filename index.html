@@ -441,6 +441,28 @@
             return `${dia}/${mes}/${año}`;
         }
         
+        function esAñoBisiesto(año) {
+            return (año % 4 === 0 && año % 100 !== 0) || (año % 400 === 0);
+        }
+        
+        function sumarDiasAFecha(fecha, dias) {
+            const nuevaFecha = new Date(fecha);
+            nuevaFecha.setDate(nuevaFecha.getDate() + dias);
+            return nuevaFecha;
+        }
+        
+        function sumarMesesAFecha(fecha, meses) {
+            const nuevaFecha = new Date(fecha);
+            nuevaFecha.setMonth(nuevaFecha.getMonth() + meses);
+            return nuevaFecha;
+        }
+        
+        function sumarAñosAFecha(fecha, años) {
+            const nuevaFecha = new Date(fecha);
+            nuevaFecha.setFullYear(nuevaFecha.getFullYear() + años);
+            return nuevaFecha;
+        }
+        
         function calcularCondena(e) {
             e.preventDefault();
             
@@ -463,7 +485,7 @@
                 const penaMeses = parseInt(document.getElementById('penaMeses').value) || 0;
                 const penaDias = parseInt(document.getElementById('penaDias').value) || 0;
                 
-                // Convertir pena a días
+                // Convertir pena a días usando años de 365 días
                 penaTotalDias = (penaAnos * 365) + (penaMeses * 30) + penaDias;
             }
             
@@ -471,7 +493,7 @@
             const periodosDetencion = [];
             const periodosElements = document.querySelectorAll('.periodo-detencion');
             
-            periodosElements.forEach(periodo => {
+            periodosDetencion.forEach(periodo => {
                 const fechaInicio = new Date(periodo.querySelector('.fechaInicio').value);
                 const fechaFin = new Date(periodo.querySelector('.fechaFin').value);
                 
@@ -492,9 +514,8 @@
             if (tipoCondena === 'temporal') {
                 penaEfectivaDias = penaTotalDias - diasDetencionPreventiva;
                 
-                // Calcular fecha de fin de condena
-                fechaFinCondena = new Date(fechaInicioCondena);
-                fechaFinCondena.setDate(fechaFinCondena.getDate() + penaEfectivaDias);
+                // Calcular fecha de fin de condena usando funciones que manejan años bisiestos
+                fechaFinCondena = sumarDiasAFecha(fechaInicioCondena, penaEfectivaDias);
             }
             
             // Determinar beneficios según legislación
@@ -513,8 +534,7 @@
             } 
             // Caso especial: Delitos Art. 56 bis con hechos posteriores al 28/07/2017
             else if (tipoDelito === '56bis' && esPosterior) {
-                const fechaRegimenPreparatorio = new Date(fechaFinCondena);
-                fechaRegimenPreparatorio.setFullYear(fechaRegimenPreparatorio.getFullYear() - 2);
+                const fechaRegimenPreparatorio = sumarAñosAFecha(fechaFinCondena, -2);
                 
                 beneficios.push({
                     tipo: 'Régimen Preparatorio de Libertad (Art. 56 quater)',
@@ -528,24 +548,34 @@
             } 
             // Otros casos para condenas temporales
             else {
-                // Período de prueba (solo para hechos posteriores al 28/07/2017)
-                if (esPosterior) {
-                    const fechaPeriodoPrueba = new Date(fechaInicioCondena);
-                    fechaPeriodoPrueba.setDate(fechaPeriodoPrueba.getDate() + Math.floor(penaEfectivaDias / 2));
+                // Para hechos anteriores al 28/07/2017 - calcular salidas transitorias
+                if (!esPosterior) {
+                    const fechaSalidasTransitorias = sumarDiasAFecha(fechaInicioCondena, Math.floor(penaEfectivaDias / 2));
+                    
+                    beneficios.push({
+                        tipo: 'Salidas Transitorias',
+                        fecha: formatearFecha(fechaSalidasTransitorias)
+                    });
+                }
+                // Para hechos posteriores al 28/07/2017 - calcular período de prueba y salidas transitorias
+                else {
+                    // Período de prueba (solo para hechos posteriores al 28/07/2017 con prisión efectiva temporal)
+                    const fechaPeriodoPrueba = sumarDiasAFecha(fechaInicioCondena, Math.floor(penaEfectivaDias / 2));
                     
                     beneficios.push({
                         tipo: 'Período de Prueba',
                         fecha: formatearFecha(fechaPeriodoPrueba)
                     });
                     
-                    // Salidas transitorias según duración de la pena
+                    // Salidas transitorias según duración de la pena total impuesta
                     let fechaSalidasTransitorias = new Date(fechaPeriodoPrueba);
                     
                     if (penaTotalDias > 3650) { // Más de 10 años
-                        fechaSalidasTransitorias.setFullYear(fechaSalidasTransitorias.getFullYear() + 1);
+                        fechaSalidasTransitorias = sumarAñosAFecha(fechaPeriodoPrueba, 1);
                     } else if (penaTotalDias > 1825) { // Más de 5 años
-                        fechaSalidasTransitorias.setMonth(fechaSalidasTransitorias.getMonth() + 6);
+                        fechaSalidasTransitorias = sumarMesesAFecha(fechaPeriodoPrueba, 6);
                     }
+                    // Para penas menores o iguales a 5 años, la fecha de salidas transitorias es la misma que el período de prueba
                     
                     beneficios.push({
                         tipo: 'Salidas Transitorias',
@@ -553,30 +583,39 @@
                     });
                 }
                 
-                // Libertad asistida
-                const mesesAntes = esPosterior ? 3 : 6;
-                const fechaLibertadAsistida = new Date(fechaFinCondena);
-                fechaLibertadAsistida.setMonth(fechaLibertadAsistida.getMonth() - mesesAntes);
-                
-                beneficios.push({
-                    tipo: 'Libertad Asistida',
-                    fecha: formatearFecha(fechaLibertadAsistida)
-                });
-                
-                // Libertad condicional (solo si no es reincidente)
+                // Libertad condicional - solo si no es reincidente
+                let tieneLibertadCondicional = false;
                 if (reincidente === 'no') {
-                    const fraccionCondena = Math.floor(penaEfectivaDias * 2 / 3);
-                    const fechaLibertadCondicional = new Date(fechaInicioCondena);
-                    fechaLibertadCondicional.setDate(fechaLibertadCondicional.getDate() + fraccionCondena);
+                    let fechaLibertadCondicional;
+                    
+                    if (penaTotalDias > 1095) { // Más de 3 años
+                        const fraccionCondena = Math.floor(penaEfectivaDias * 2 / 3);
+                        fechaLibertadCondicional = sumarDiasAFecha(fechaInicioCondena, fraccionCondena);
+                    } else { // 3 años o menos
+                        fechaLibertadCondicional = sumarMesesAFecha(fechaInicioCondena, 8);
+                    }
                     
                     beneficios.push({
                         tipo: 'Libertad Condicional',
                         fecha: formatearFecha(fechaLibertadCondicional)
                     });
+                    
+                    tieneLibertadCondicional = true;
                 } else {
                     alertas.push({
                         mensaje: 'No puede acceder a libertad condicional por ser reincidente (Art. 50 CP)',
                         tipo: 'error'
+                    });
+                }
+                
+                // Libertad asistida - solo si no tiene libertad condicional
+                if (!tieneLibertadCondicional) {
+                    const mesesAntes = esPosterior ? 3 : 6;
+                    const fechaLibertadAsistida = sumarMesesAFecha(fechaFinCondena, -mesesAntes);
+                    
+                    beneficios.push({
+                        tipo: 'Libertad Asistida',
+                        fecha: formatearFecha(fechaLibertadAsistida)
                     });
                 }
             }
@@ -633,16 +672,51 @@
                 `;
             }
             
-            // Mostrar beneficios
-            if (resultados.beneficios.length > 0) {
-                html += '<h3>Beneficios Aplicables:</h3>';
-                resultados.beneficios.forEach(beneficio => {
-                    html += `
-                        <div class="resultado-item beneficio-item">
-                            <strong>${beneficio.tipo}:</strong> ${beneficio.fecha}
-                        </div>
-                    `;
-                });
+            // Mostrar beneficios específicos según lo solicitado
+            const periodoPrueba = resultados.beneficios.find(b => b.tipo === 'Período de Prueba');
+            const salidasTransitorias = resultados.beneficios.find(b => b.tipo === 'Salidas Transitorias');
+            const libertadAsistida = resultados.beneficios.find(b => b.tipo === 'Libertad Asistida');
+            const libertadCondicional = resultados.beneficios.find(b => b.tipo === 'Libertad Condicional');
+            const regimenPreparatorio = resultados.beneficios.find(b => b.tipo.includes('Régimen Preparatorio'));
+            
+            if (periodoPrueba) {
+                html += `
+                    <div class="resultado-item beneficio-item">
+                        <strong>Período de prueba:</strong> ${periodoPrueba.fecha}
+                    </div>
+                `;
+            }
+            
+            if (salidasTransitorias) {
+                html += `
+                    <div class="resultado-item beneficio-item">
+                        <strong>Salidas transitorias:</strong> ${salidasTransitorias.fecha}
+                    </div>
+                `;
+            }
+            
+            if (libertadAsistida) {
+                html += `
+                    <div class="resultado-item beneficio-item">
+                        <strong>Libertad asistida:</strong> ${libertadAsistida.fecha}
+                    </div>
+                `;
+            }
+            
+            if (libertadCondicional) {
+                html += `
+                    <div class="resultado-item beneficio-item">
+                        <strong>Libertad condicional:</strong> ${libertadCondicional.fecha}
+                    </div>
+                `;
+            }
+            
+            if (regimenPreparatorio) {
+                html += `
+                    <div class="resultado-item beneficio-item">
+                        <strong>Régimen Preparatorio de Libertad:</strong> ${regimenPreparatorio.fecha}
+                    </div>
+                `;
             }
             
             // Mostrar alertas
