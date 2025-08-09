@@ -351,7 +351,7 @@
         
         <div class="content">
             <div class="info-box">
-                <strong>Información importante:</strong> Esta calculadora aplica la legislación vigente en Argentina (Ley 24.660 y modificaciones). Los beneficios dependen de la fecha del hecho, tipo de delito y reincidencia.
+                <strong>Información importante:</strong> Esta calculadora aplica la legislación vigente en Argentina (Ley 24.660 y modificaciones).
             </div>
             
             <form id="condenaForm">
@@ -445,7 +445,7 @@
         </div>
         
         <div class="footer">
-            <p>Juzgado de Ejecución Penal de Segunda Nominación de la Prov. de Catamarca, Rep. Argentina</p>
+            <p>Create by RBM 2025</p>
         </div>
     </div>
 
@@ -749,10 +749,7 @@
             if (resultados.beneficios.length > 0) {
                 html += '<h3>Beneficios Posibles:</h3>';
                 resultados.beneficios.sort((a, b) => new Date(a.fecha.split('/').reverse().join('-')) - new Date(b.fecha.split('/').reverse().join('-')));
-                // --- INICIO DE LA CORRECCIÓN ---
-                // Se cambió 'beneficios.forEach' por 'resultados.beneficios.forEach'
                 resultados.beneficios.forEach(beneficio => {
-                // --- FIN DE LA CORRECCIÓN ---
                     html += `
                         <div class="resultado-item beneficio-item">
                             <strong>${beneficio.tipo}:</strong> ${beneficio.fecha}
@@ -847,11 +844,13 @@
                              }
                              .footer {
                                  margin-top: 40px;
-                                 text-align: center;
                                  font-size: 12px;
                                  color: #666;
                                  border-top: 1px solid #ddd;
                                  padding-top: 10px;
+                                 display: flex;
+                                 justify-content: space-between;
+                                 align-items: center;
                              }
                              .print-btn {
                                  display: block;
@@ -872,11 +871,10 @@
                     </head>
                     <body>
                         <h1>Informe de Cómputo de Condena</h1>
-                        <h2>Juzgado de Ejecución Penal de Segunda Nominación</h2>
-                        <h2>Provincia de Catamarca, República Argentina - Create by RBM 2025</h2>
                         ${contenido}
                         <div class="footer">
-                             <p>Generado el ${new Date().toLocaleDateString('es-AR')}</p>
+                             <p style="margin: 0;">Generado el ${new Date().toLocaleDateString('es-AR')}</p>
+                             <p style="margin: 0;">Create by RBM 2025</p>
                         </div>
                         <button class="print-btn" onclick="window.print()">Imprimir Documento</button>
                     </body>
