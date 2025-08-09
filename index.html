@@ -496,62 +496,78 @@
         
         function convertirDiasAMDM(dias) {
             if (dias < 0) dias = 0;
-            let años = Math.floor(dias / 365.25);
-            let resto = dias % 365.25;
-            let meses = Math.floor(resto / 30.44);
-            let diasRestantes = Math.round(resto % 30.44);
+            const años = Math.floor(dias / 365.25);
+            const resto = dias % 365.25;
+            const meses = Math.floor(resto / 30.44);
+            const diasRestantes = Math.round(resto % 30.44);
             
-            let resultado = '';
+            let resultado = [];
             if (años > 0) {
-                resultado += años + ' año' + (años !== 1 ? 's' : '');
+                resultado.push(años + ' año' + (años !== 1 ? 's' : ''));
             }
             if (meses > 0) {
-                if (resultado) resultado += ', ';
-                resultado += meses + ' mes' + (meses !== 1 ? 'es' : '');
+                resultado.push(meses + ' mes' + (meses !== 1 ? 'es' : ''));
             }
             if (diasRestantes > 0) {
-                if (resultado) resultado += ' y ';
-                resultado += diasRestantes + ' día' + (diasRestantes !== 1 ? 's' : '');
+                resultado.push(diasRestantes + ' día' + (diasRestantes !== 1 ? 's' : ''));
             }
-            return resultado || '0 días';
+            return resultado.join(', ') || '0 días';
         }
         
         function formatearFecha(fecha) {
-            const fechaAjustada = new Date(fecha.getTime() + (fecha.getTimezoneOffset() * 60000));
-            const dia = fechaAjustada.getDate().toString().padStart(2, '0');
-            const mes = (fechaAjustada.getMonth() + 1).toString().padStart(2, '0');
-            const año = fechaAjustada.getFullYear();
+            if (!fecha || !(fecha instanceof Date) || isNaN(fecha)) {
+                return 'Fecha inválida';
+            }
+            // Usar métodos UTC para evitar corrupciones por zona horaria
+            const dia = fecha.getUTCDate().toString().padStart(2, '0');
+            const mes = (fecha.getUTCMonth() + 1).toString().padStart(2, '0');
+            const año = fecha.getUTCFullYear();
             return `${dia}/${mes}/${año}`;
         }
 
         function sumarDiasAFecha(fecha, dias) {
             const nuevaFecha = new Date(fecha);
-            nuevaFecha.setDate(nuevaFecha.getDate() + dias);
+            nuevaFecha.setUTCDate(nuevaFecha.getUTCDate() + dias);
             return nuevaFecha;
         }
         
         function sumarMesesAFecha(fecha, meses) {
             const nuevaFecha = new Date(fecha);
-            nuevaFecha.setMonth(nuevaFecha.getMonth() + meses);
+            nuevaFecha.setUTCMonth(nuevaFecha.getUTCMonth() + meses);
             return nuevaFecha;
         }
         
         function sumarAñosAFecha(fecha, años) {
             const nuevaFecha = new Date(fecha);
-            nuevaFecha.setFullYear(nuevaFecha.getFullYear() + años);
+            nuevaFecha.setUTCFullYear(nuevaFecha.getUTCFullYear() + años);
             return nuevaFecha;
         }
-        
+
         function calcularCondena(e) {
             e.preventDefault();
-            
+
+            // --- Validación de Entradas ---
             const nombreCondenado = document.getElementById('nombreCondenado').value;
             const delito = document.getElementById('delito').value;
             const tipoCondena = document.getElementById('tipoCondena').value;
-            const fechaInicioCondena = new Date(document.getElementById('fechaInicioCondena').value);
-            const fechaHecho = new Date(document.getElementById('fechaHecho').value);
+            const fechaInicioCondenaStr = document.getElementById('fechaInicioCondena').value;
+            const fechaHechoStr = document.getElementById('fechaHecho').value;
             const tipoDelito = document.getElementById('tipoDelito').value;
             const reincidente = document.getElementById('reincidente').value;
+
+            // Validar que las fechas principales no estén vacías
+            if (!fechaInicioCondenaStr || !fechaHechoStr) {
+                const resultadosDiv = document.getElementById('resultados');
+                const container = document.getElementById('resultadosContainer');
+                container.innerHTML = `<div class="resultado-item error-item"><strong>Error:</strong> Por favor, complete todas las fechas requeridas en el formulario.</div>`;
+                resultadosDiv.classList.remove('hidden');
+                resultadosDiv.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            // Parsear fechas como UTC para evitar errores de zona horaria
+            const fechaInicioCondena = new Date(fechaInicioCondenaStr + 'T00:00:00Z');
+            const fechaHecho = new Date(fechaHechoStr + 'T00:00:00Z');
             
             let penaTotalDias = 0;
             let penaEfectivaDias = 0;
@@ -562,14 +578,13 @@
                 const penaMeses = parseInt(document.getElementById('penaMeses').value) || 0;
                 const penaDias = parseInt(document.getElementById('penaDias').value) || 0;
 
-                let fechaFinPenaTotal = new Date(fechaInicioCondena);
-                fechaFinPenaTotal.setFullYear(fechaFinPenaTotal.getFullYear() + penaAnos);
-                fechaFinPenaTotal.setMonth(fechaFinPenaTotal.getMonth() + penaMeses);
-                fechaFinPenaTotal.setDate(fechaFinPenaTotal.getDate() + penaDias);
+                // 1. Calcular fecha de fin de pena bruta (sin descuentos)
+                let fechaFinPenaBruta = new Date(fechaInicioCondena);
+                fechaFinPenaBruta.setUTCFullYear(fechaFinPenaBruta.getUTCFullYear() + penaAnos);
+                fechaFinPenaBruta.setUTCMonth(fechaFinPenaBruta.getUTCMonth() + penaMeses);
+                fechaFinPenaBruta.setUTCDate(fechaFinPenaBruta.getUTCDate() + penaDias);
                 
-                const diffPenaTotal = fechaFinPenaTotal.getTime() - fechaInicioCondena.getTime();
-                penaTotalDias = Math.round(diffPenaTotal / (1000 * 60 * 60 * 24));
-
+                // 2. Calcular días de detención
                 let diasDetencionPreventiva = 0;
                 const periodosElements = document.querySelectorAll('.periodo-detencion');
                 periodosElements.forEach(periodo => {
@@ -586,14 +601,21 @@
                     }
                 });
 
-                penaEfectivaDias = penaTotalDias - diasDetencionPreventiva;
-                if (penaEfectivaDias < 0) penaEfectivaDias = 0;
+                // 3. Calcular fecha de fin de condena real (con descuentos)
+                fechaFinCondena = new Date(fechaFinPenaBruta);
+                fechaFinCondena.setUTCDate(fechaFinCondena.getUTCDate() - diasDetencionPreventiva);
                 
-                fechaFinCondena = new Date(fechaInicioCondena);
-                fechaFinCondena.setDate(fechaFinCondena.getDate() + penaEfectivaDias);
+                // 4. Calcular días totales y efectivos para mostrar
+                const diffPenaTotalMs = fechaFinPenaBruta.getTime() - fechaInicioCondena.getTime();
+                penaTotalDias = Math.round(diffPenaTotalMs / (1000 * 60 * 60 * 24));
+                if (penaTotalDias < 0) penaTotalDias = 0;
+
+                const diffPenaEfectivaMs = fechaFinCondena.getTime() - fechaInicioCondena.getTime();
+                penaEfectivaDias = Math.round(diffPenaEfectivaMs / (1000 * 60 * 60 * 24));
+                if (penaEfectivaDias < 0) penaEfectivaDias = 0;
             }
             
-            const fechaLimite = new Date('2017-07-28');
+            const fechaLimite = new Date('2017-07-28T00:00:00Z');
             const esPosterior = fechaHecho >= fechaLimite;
             
             let beneficios = [];
@@ -605,7 +627,7 @@
                     tipo: 'error'
                 });
             } else if (tipoDelito === '56bis' && esPosterior) {
-                const fechaRegimenPreparatorio = sumarAñosAFecha(fechaFinCondena, -2);
+                const fechaRegimenPreparatorio = sumarAñosAFecha(new Date(fechaFinCondena), -2);
                 beneficios.push({
                     tipo: 'Régimen Preparatorio de Libertad (Art. 56 quater)',
                     fecha: formatearFecha(fechaRegimenPreparatorio)
@@ -616,13 +638,13 @@
                 });
             } else if (tipoCondena === 'temporal') {
                 if (!esPosterior) {
-                    const fechaSalidasTransitorias = sumarDiasAFecha(fechaInicioCondena, Math.floor(penaEfectivaDias / 2));
+                    const fechaSalidasTransitorias = sumarDiasAFecha(new Date(fechaInicioCondena), Math.floor(penaEfectivaDias / 2));
                     beneficios.push({
                         tipo: 'Salidas Transitorias',
                         fecha: formatearFecha(fechaSalidasTransitorias)
                     });
                 } else {
-                    const fechaPeriodoPrueba = sumarDiasAFecha(fechaInicioCondena, Math.floor(penaEfectivaDias / 2));
+                    const fechaPeriodoPrueba = sumarDiasAFecha(new Date(fechaInicioCondena), Math.floor(penaEfectivaDias / 2));
                     beneficios.push({
                         tipo: 'Período de Prueba',
                         fecha: formatearFecha(fechaPeriodoPrueba)
@@ -630,9 +652,9 @@
                     
                     let fechaSalidasTransitorias = new Date(fechaPeriodoPrueba);
                     if (penaTotalDias > 3650) {
-                        fechaSalidasTransitorias = sumarAñosAFecha(fechaPeriodoPrueba, 1);
+                        fechaSalidasTransitorias = sumarAñosAFecha(fechaSalidasTransitorias, 1);
                     } else if (penaTotalDias > 1825) {
-                        fechaSalidasTransitorias = sumarMesesAFecha(fechaPeriodoPrueba, 6);
+                        fechaSalidasTransitorias = sumarMesesAFecha(fechaSalidasTransitorias, 6);
                     }
                     beneficios.push({
                         tipo: 'Salidas Transitorias',
@@ -645,9 +667,9 @@
                     let fechaLibertadCondicional;
                     if (penaTotalDias > 1095) {
                         const fraccionCondena = Math.floor(penaEfectivaDias * 2 / 3);
-                        fechaLibertadCondicional = sumarDiasAFecha(fechaInicioCondena, fraccionCondena);
+                        fechaLibertadCondicional = sumarDiasAFecha(new Date(fechaInicioCondena), fraccionCondena);
                     } else {
-                        fechaLibertadCondicional = sumarMesesAFecha(fechaInicioCondena, 8);
+                        fechaLibertadCondicional = sumarMesesAFecha(new Date(fechaInicioCondena), 8);
                     }
                     beneficios.push({
                         tipo: 'Libertad Condicional',
@@ -663,7 +685,7 @@
                 
                 if (!tieneLibertadCondicional) {
                     const mesesAntes = esPosterior ? 3 : 6;
-                    const fechaLibertadAsistida = sumarMesesAFecha(fechaFinCondena, -mesesAntes);
+                    const fechaLibertadAsistida = sumarMesesAFecha(new Date(fechaFinCondena), -mesesAntes);
                     beneficios.push({
                         tipo: 'Libertad Asistida',
                         fecha: formatearFecha(fechaLibertadAsistida)
@@ -727,7 +749,10 @@
             if (resultados.beneficios.length > 0) {
                 html += '<h3>Beneficios Posibles:</h3>';
                 resultados.beneficios.sort((a, b) => new Date(a.fecha.split('/').reverse().join('-')) - new Date(b.fecha.split('/').reverse().join('-')));
-                beneficios.forEach(beneficio => {
+                // --- INICIO DE LA CORRECCIÓN ---
+                // Se cambió 'beneficios.forEach' por 'resultados.beneficios.forEach'
+                resultados.beneficios.forEach(beneficio => {
+                // --- FIN DE LA CORRECCIÓN ---
                     html += `
                         <div class="resultado-item beneficio-item">
                             <strong>${beneficio.tipo}:</strong> ${beneficio.fecha}
@@ -848,7 +873,7 @@
                     <body>
                         <h1>Informe de Cómputo de Condena</h1>
                         <h2>Juzgado de Ejecución Penal de Segunda Nominación</h2>
-                        <h2>Provincia de Catamarca, República Argentina</h2>
+                        <h2>Provincia de Catamarca, República Argentina - Create by RBM 2025</h2>
                         ${contenido}
                         <div class="footer">
                              <p>Generado el ${new Date().toLocaleDateString('es-AR')}</p>
