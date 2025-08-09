@@ -602,18 +602,28 @@
                 return;
             }
 
+            // --- INICIO DE LA MODIFICACIÓN ---
+            // Formatear los beneficios en un solo texto
+            const beneficiosTexto = lastResults.beneficios.map(b => `${b.tipo}: ${b.fecha}`).join('; ') || 'No aplica';
+
+            // Recopilar todos los datos del informe en el orden correcto
             const datosFila = [
                 lastResults.nombreCondenado,
                 lastResults.delito,
-                lastResults.fechaFinCondena,
+                lastResults.fechaHecho,
+                lastResults.reincidente ? 'Sí' : 'No',
+                lastResults.tipoCondena === 'temporal' ? 'Prisión efectiva temporal' : 'Prisión efectiva perpetua',
                 convertirDiasAMDM(lastResults.penaTotalDias),
+                `${lastResults.penaTotalDias - lastResults.penaEfectivaDias} días`,
                 convertirDiasAMDM(lastResults.penaEfectivaDias),
-                new Date().toLocaleString('es-AR')
+                lastResults.fechaFinCondena,
+                beneficiosTexto,
+                new Date().toLocaleString('es-AR') // Fecha de guardado
             ];
             
             const request = {
                 spreadsheetId: SPREADSHEET_ID,
-                range: "'Hoja 1'!A1", 
+                range: "'Hoja 1'!A1", // Se usa "'Hoja 1'" para el nombre en español
                 valueInputOption: 'USER_ENTERED',
                 resource: {
                     values: [datosFila]
@@ -640,6 +650,7 @@
                 }
                 document.getElementById('auth-status').innerText = errorMessage;
             });
+            // --- FIN DE LA MODIFICACIÓN ---
         }
 
         // --- FUNCIONES DEL MODAL ---
