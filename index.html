@@ -598,12 +598,10 @@
             }
 
             if (gapi.client.getToken() === null) {
-                // Pedir autorización si no está logueado
                 handleAuthClick();
                 return;
             }
 
-            // Formatear los datos para la hoja de cálculo
             const datosFila = [
                 lastResults.nombreCondenado,
                 lastResults.delito,
@@ -612,10 +610,13 @@
                 convertirDiasAMDM(lastResults.penaEfectivaDias),
                 new Date().toLocaleString('es-AR')
             ];
-
+            
+            // --- INICIO DE LA CORRECCIÓN ---
+            // Se usa "'Hoja 1'!A1" para que coincida con el nombre de hoja por defecto en español.
+            // Las comillas simples son importantes si el nombre de la hoja tiene espacios.
             const request = {
                 spreadsheetId: SPREADSHEET_ID,
-                range: 'Hoja1!A1', // Asume que los datos se guardan en la "Hoja1"
+                range: "'Hoja 1'!A1", 
                 valueInputOption: 'USER_ENTERED',
                 resource: {
                     values: [datosFila]
@@ -626,9 +627,15 @@
             gapi.client.sheets.spreadsheets.values.append(request).then(function(response) {
                 document.getElementById('auth-status').innerText = '¡Datos guardados con éxito!';
             }, function(reason) {
-                console.error('error: ' + reason.result.error.message);
-                document.getElementById('auth-status').innerText = 'Error al guardar. Revise la consola.';
+                console.error('Error al guardar:', reason);
+                let errorMessage = 'Error al guardar. Revise la consola para más detalles.';
+                // Mensaje de error mejorado para guiar al usuario
+                if (reason.result && reason.result.error && reason.result.error.message.includes('Unable to parse range')) {
+                    errorMessage = "Error: No se encontró la hoja de cálculo. Verifique que el nombre de la hoja sea exactamente 'Hoja 1'.";
+                }
+                document.getElementById('auth-status').innerText = errorMessage;
             });
+            // --- FIN DE LA CORRECCIÓN ---
         }
 
         // --- FUNCIONES DEL MODAL ---
@@ -638,7 +645,6 @@
             modal.classList.add('visible');
 
             const confirmBtn = document.getElementById('confirmBtn');
-            // Clona el botón para remover event listeners previos
             const newConfirmBtn = confirmBtn.cloneNode(true);
             confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
@@ -1079,5 +1085,3 @@
     </script>
 </body>
 </html>
-" and I want you to make the following changes:
-- I want to remove the selected code from the docume
