@@ -5,103 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculo de Pena – Juzgado de Ejecución Penal de Segunda Nominación de la Prov. de Catamarca, Rep. Argentina</title>
     <style>
+        /* --- ESTILOS GENERALES Y FUENTE --- */
         * {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             box-sizing: border-box;
         }
         
+        /* --- FONDO Y CUERPO DE LA PÁGINA --- */
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: linear-gradient(135deg, #2c3e50, #34495e); /* Gradiente más sutil y moderno */
             min-height: 100vh;
             padding: 20px;
             color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
+        /* --- CONTENEDOR PRINCIPAL CON EFECTO 3D --- */
         .container {
+            width: 100%;
             max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin: 20px;
+            background: #ffffff;
+            border-radius: 20px; /* Bordes más redondeados */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 0 2px rgba(255,255,255,0.1); /* Sombra más pronunciada para efecto 3D */
             overflow: hidden;
+            transform: perspective(1200px); /* Perspectiva para transformaciones 3D */
+            transition: transform 0.4s ease;
+        }
+
+        .container:hover {
+            transform: scale(1.01); /* Ligero zoom al pasar el mouse */
         }
         
+        /* --- ENCABEZADO CON LOGO Y TÍTULO --- */
         .header {
-            background: linear-gradient(90deg, #003366, #0066cc);
+            background: linear-gradient(90deg, #003366, #005cb3);
             color: white;
-            padding: 25px;
+            padding: 30px 40px;
             text-align: center;
+            position: relative; /* Necesario para posicionar el logo */
+            border-bottom: 5px solid #fdbb2d;
+        }
+
+        .header-logo {
+            position: absolute;
+            top: 50%;
+            left: 40px;
+            transform: translateY(-50%);
+            width: 80px; /* Tamaño del logo */
+            height: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            padding: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
         }
         
         .header h1 {
             margin: 0;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: bold;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 5px 5px 10px rgba(0,0,0,0.3);
-            letter-spacing: 2px;
-            transform: perspective(500px) rotateX(5deg);
+            text-shadow: 0 3px 8px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
         }
         
         .header p {
-            margin: 15px 0 0;
+            margin: 10px 0 0;
             opacity: 0.9;
-            font-size: 1.2rem;
-            font-weight: 600;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         
+        /* --- CONTENIDO PRINCIPAL --- */
         .content {
             padding: 30px;
         }
         
+        /* --- SECCIONES DEL FORMULARIO CON EFECTO HOVER --- */
         .form-section {
             margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            background: #f9f9f9;
+            padding: 25px;
+            border: none; /* Quitamos el borde */
+            border-radius: 15px;
+            background: #f9fafb;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.07); /* Sombra sutil */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-section:hover {
+            transform: translateY(-5px); /* Se eleva al pasar el mouse */
+            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
         }
         
         .form-section h2 {
             margin-top: 0;
             color: #003366;
-            border-bottom: 2px solid #0066cc;
+            border-bottom: 2px solid #005cb3;
             padding-bottom: 10px;
-            font-size: 1.8rem;
-            font-weight: bold;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            font-size: 1.6rem;
+            font-weight: 700;
         }
         
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: 600;
-            color: #333;
-            font-size: 1.1rem;
+            color: #374151;
+            font-size: 1rem;
         }
         
+        /* --- INPUTS Y SELECTS MODERNOS --- */
         input,
         select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1.1rem;
+            padding: 12px 15px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         
         input:focus, select:focus {
             border-color: #0066cc;
             outline: none;
-            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2); /* Resplandor al enfocar */
         }
         
         .periodo-detencion {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             margin-bottom: 10px;
             align-items: center;
         }
@@ -110,122 +148,139 @@
             flex: 1;
         }
         
+        /* --- BOTONES CON EFECTO 3D --- */
         .btn {
-            background: #0066cc;
+            background: linear-gradient(145deg, #007bff, #0056b3);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
+            padding: 12px 25px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 1.1rem;
             font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 91, 179, 0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         
         .btn:hover {
-            background: #0052a3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            background: linear-gradient(145deg, #0069d9, #004a99);
+            transform: translateY(-3px) scale(1.05); /* Efecto de elevación y crecimiento */
+            box-shadow: 0 7px 15px rgba(0, 91, 179, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(-1px) scale(1.02); /* Efecto de presionar */
         }
         
         .btn-danger {
-            background: #e74c3c;
+            background: linear-gradient(145deg, #dc3545, #b02a37);
+            box-shadow: 0 4px 10px rgba(176, 42, 55, 0.3);
         }
         
         .btn-danger:hover {
-            background: #c0392b;
+            background: linear-gradient(145deg, #c82333, #a12430);
+            box-shadow: 0 7px 15px rgba(176, 42, 55, 0.4);
         }
         
         .btn-success {
-            background: #27ae60;
+            background: linear-gradient(145deg, #28a745, #1e7e34);
             font-size: 1.3rem;
             padding: 15px 30px;
             margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(30, 126, 52, 0.3);
         }
         
         .btn-success:hover {
-            background: #219653;
+            background: linear-gradient(145deg, #218838, #19692c);
+            box-shadow: 0 7px 15px rgba(30, 126, 52, 0.4);
         }
         
         .btn-pdf {
-            background: #8e44ad;
+            background: linear-gradient(145deg, #8e44ad, #7d3c98);
             margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(125, 60, 152, 0.3);
         }
         
         .btn-pdf:hover {
-            background: #7d3c98;
+            background: linear-gradient(145deg, #803ea5, #6d3284);
+            box-shadow: 0 7px 15px rgba(125, 60, 152, 0.4);
         }
         
+        /* --- SECCIÓN DE RESULTADOS --- */
         .resultados {
             margin-top: 30px;
-            padding: 20px;
-            background: #e8f4fc;
-            border-radius: 10px;
-            border-left: 5px solid #0066cc;
+            padding: 25px;
+            background: #eef2f7;
+            border-radius: 15px;
+            border-left: 6px solid #005cb3;
         }
         
         .resultados h2 {
             color: #003366;
             margin-top: 0;
-            font-size: 2rem;
-            font-weight: bold;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            font-size: 1.8rem;
+            font-weight: 700;
         }
         
         .resultados h3 {
             color: #003366;
-            font-size: 1.5rem;
-            margin-top: 20px;
+            font-size: 1.4rem;
+            margin-top: 25px;
             margin-bottom: 15px;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            font-weight: 600;
         }
         
         .resultado-item {
             margin-bottom: 15px;
             padding: 15px;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            font-size: 1.1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            font-size: 1.05rem;
+            border-left: 4px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .resultado-item:hover {
+            border-left-color: #007bff;
         }
         
         .resultado-item strong {
             color: #003366;
-            font-weight: bold;
-            font-size: 1.2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-right: 8px;
         }
         
         .beneficio-item {
             background: #d4edda;
-            border-left: 4px solid #27ae60;
+            border-left-color: #28a745;
         }
         
         .alerta-item {
             background: #fff3cd;
-            border-left: 4px solid #ffc107;
+            border-left-color: #ffc107;
         }
         
         .error-item {
             background: #f8d7da;
-            border-left: 4px solid #dc3545;
+            border-left-color: #dc3545;
         }
         
+        /* --- PIE DE PÁGINA --- */
         .footer {
-            background: #003366;
-            color: white;
+            background: #2c3e50;
+            color: rgba(255,255,255,0.8);
             text-align: center;
-            padding: 15px;
+            padding: 20px;
+            border-top: 5px solid #fdbb2d;
         }
         
         .footer p {
-            font-size: 1.3rem;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 4px 4px 8px rgba(0,0,0,0.3);
-            letter-spacing: 1px;
-            transform: perspective(500px) rotateX(5deg);
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 500;
         }
         
         .hidden {
@@ -235,19 +290,30 @@
         .info-box {
             background: #d1ecf1;
             border: 1px solid #bee5eb;
-            border-radius: 5px;
-            padding: 15px;
+            border-radius: 10px;
+            padding: 15px 20px;
             margin-bottom: 20px;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            color: #0c5460;
         }
         
+        /* --- RESPONSIVIDAD --- */
         @media (max-width: 768px) {
+            .header-logo {
+                display: none; /* Ocultar logo en pantallas pequeñas */
+            }
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .header p {
+                font-size: 1rem;
+            }
+            .content {
+                padding: 20px;
+            }
             .periodo-detencion {
                 flex-direction: column;
-            }
-            
-            .periodo-detencion input {
-                margin-bottom: 10px;
+                gap: 10px;
             }
         }
     </style>
@@ -255,7 +321,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Calculo de Pena</h1>
+            <img src="https://googleusercontent.com/file_content/1" alt="Logo Poder Judicial de Catamarca" class="header-logo">
+            <h1>Cálculo de Pena</h1>
             <p>Juzgado de Ejecución Penal de Segunda Nominación de la Prov. de Catamarca, Rep. Argentina</p>
         </div>
         
@@ -308,14 +375,10 @@
                 
                 <div class="form-section">
                     <h2>Detenciones Preventivas</h2>
-                    <p>Ingrese todos los períodos de detención previos a la condena:</p>
+                    <p>Ingrese los períodos de detención previos a la condena (si corresponde):</p>
                     
                     <div id="detencionesContainer">
-                        <div class="periodo-detencion">
-                            <input type="date" placeholder="Fecha inicio" class="fechaInicio" required>
-                            <input type="date" placeholder="Fecha fin" class="fechaFin" required>
-                            <button type="button" class="btn btn-danger" onclick="eliminarPeriodo(this)">Eliminar</button>
-                        </div>
+                        <!-- Este contenedor estará vacío inicialmente -->
                     </div>
                     
                     <button type="button" class="btn" onclick="agregarPeriodo()">+ Agregar período</button>
@@ -368,7 +431,6 @@
             document.getElementById('condenaForm').addEventListener('submit', calcularCondena);
             document.getElementById('tipoCondena').addEventListener('change', togglePenaTemporal);
             
-            // Asignar evento al botón PDF cuando esté disponible
             document.addEventListener('click', function(e) {
                 if (e.target && e.target.id === 'btnPDF') {
                     generarPDF();
@@ -406,21 +468,15 @@
         }
         
         function eliminarPeriodo(boton) {
-            const container = document.getElementById('detencionesContainer');
-            if (container.children.length > 1) {
-                boton.parentElement.remove();
-            } else {
-                // Reemplazar alert con un modal o mensaje en la UI en el futuro
-                alert('Debe mantener al menos un período de detención');
-            }
+            boton.parentElement.remove();
         }
         
         function convertirDiasAMDM(dias) {
             if (dias < 0) dias = 0;
-            let años = Math.floor(dias / 365);
-            let resto = dias % 365;
-            let meses = Math.floor(resto / 30);
-            let diasRestantes = resto % 30;
+            let años = Math.floor(dias / 365.25);
+            let resto = dias % 365.25;
+            let meses = Math.floor(resto / 30.44);
+            let diasRestantes = Math.round(resto % 30.44);
             
             let resultado = '';
             if (años > 0) {
@@ -438,7 +494,6 @@
         }
         
         function formatearFecha(fecha) {
-            // Se suma 1 día porque el constructor de Date puede tener problemas de zona horaria
             const fechaAjustada = new Date(fecha.getTime() + (fecha.getTimezoneOffset() * 60000));
             const dia = fechaAjustada.getDate().toString().padStart(2, '0');
             const mes = (fechaAjustada.getMonth() + 1).toString().padStart(2, '0');
@@ -467,7 +522,6 @@
         function calcularCondena(e) {
             e.preventDefault();
             
-            // Obtener datos del formulario
             const nombreCondenado = document.getElementById('nombreCondenado').value;
             const delito = document.getElementById('delito').value;
             const tipoCondena = document.getElementById('tipoCondena').value;
@@ -477,66 +531,45 @@
             const reincidente = document.getElementById('reincidente').value;
             
             let penaTotalDias = 0;
+            let penaEfectivaDias = 0;
             let fechaFinCondena = null;
             
-            // Si es condena temporal, calcular la pena
             if (tipoCondena === 'temporal') {
                 const penaAnos = parseInt(document.getElementById('penaAnos').value) || 0;
                 const penaMeses = parseInt(document.getElementById('penaMeses').value) || 0;
                 const penaDias = parseInt(document.getElementById('penaDias').value) || 0;
-                
-                // Convertir pena a días usando años de 365 días
-                penaTotalDias = (penaAnos * 365) + (penaMeses * 30) + penaDias;
-            }
-            
-            // --- INICIO DE LA CORRECCIÓN ---
-            // Calcular días totales de detención preventiva
-            let diasDetencionPreventiva = 0;
-            const periodosElements = document.querySelectorAll('.periodo-detencion');
-            
-            periodosElements.forEach(periodo => {
-                const fechaInicioStr = periodo.querySelector('.fechaInicio').value;
-                const fechaFinStr = periodo.querySelector('.fechaFin').value;
-                
-                if (fechaInicioStr && fechaFinStr) {
-                    // Se crean las fechas en UTC para evitar problemas de zona horaria
-                    const fechaInicio = new Date(fechaInicioStr + 'T00:00:00Z');
-                    const fechaFin = new Date(fechaFinStr + 'T00:00:00Z');
 
-                    if (fechaInicio <= fechaFin) {
-                        const diffTime = Math.abs(fechaFin - fechaInicio);
-                        // Se suma 1 para incluir el día de inicio en el cómputo
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                        diasDetencionPreventiva += diffDays;
+                let fechaFinPenaTotal = new Date(fechaInicioCondena);
+                fechaFinPenaTotal.setFullYear(fechaFinPenaTotal.getFullYear() + penaAnos);
+                fechaFinPenaTotal.setMonth(fechaFinPenaTotal.getMonth() + penaMeses);
+                fechaFinPenaTotal.setDate(fechaFinPenaTotal.getDate() + penaDias);
+                
+                const diffPenaTotal = fechaFinPenaTotal.getTime() - fechaInicioCondena.getTime();
+                penaTotalDias = Math.round(diffPenaTotal / (1000 * 60 * 60 * 24));
+
+                let diasDetencionPreventiva = 0;
+                const periodosElements = document.querySelectorAll('.periodo-detencion');
+                periodosElements.forEach(periodo => {
+                    const fechaInicioStr = periodo.querySelector('.fechaInicio').value;
+                    const fechaFinStr = periodo.querySelector('.fechaFin').value;
+                    if (fechaInicioStr && fechaFinStr) {
+                        const fechaInicio = new Date(fechaInicioStr + 'T00:00:00Z');
+                        const fechaFin = new Date(fechaFinStr + 'T00:00:00Z');
+                        if (fechaInicio <= fechaFin) {
+                            const diffTime = Math.abs(fechaFin - fechaInicio);
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                            diasDetencionPreventiva += diffDays;
+                        }
                     }
-                }
-            });
-            // --- FIN DE LA CORRECCIÓN ---
-            
-            // Calcular pena efectiva y fecha de fin de condena
-            let penaEfectivaDias = 0;
-            if (tipoCondena === 'temporal') {
-                // La fecha final de la condena se calcula desde el inicio de la condena,
-                // sumando la pena total y luego restando los días de detención.
-                let fechaFinSinDescuento = new Date(fechaInicioCondena);
-                const penaAnos = parseInt(document.getElementById('penaAnos').value) || 0;
-                const penaMeses = parseInt(document.getElementById('penaMeses').value) || 0;
-                const penaDias = parseInt(document.getElementById('penaDias').value) || 0;
+                });
 
-                fechaFinSinDescuento.setFullYear(fechaFinSinDescuento.getFullYear() + penaAnos);
-                fechaFinSinDescuento.setMonth(fechaFinSinDescuento.getMonth() + penaMeses);
-                fechaFinSinDescuento.setDate(fechaFinSinDescuento.getDate() + penaDias);
-
-                // Ahora restamos los días de detención preventiva
-                fechaFinCondena = new Date(fechaFinSinDescuento);
-                fechaFinCondena.setDate(fechaFinCondena.getDate() - diasDetencionPreventiva);
+                penaEfectivaDias = penaTotalDias - diasDetencionPreventiva;
+                if (penaEfectivaDias < 0) penaEfectivaDias = 0;
                 
-                // La pena efectiva es la diferencia entre la fecha de fin y la de inicio
-                const diffTiempoEfectivo = fechaFinCondena.getTime() - fechaInicioCondena.getTime();
-                penaEfectivaDias = Math.ceil(diffTiempoEfectivo / (1000 * 60 * 60 * 24));
+                fechaFinCondena = new Date(fechaInicioCondena);
+                fechaFinCondena.setDate(fechaFinCondena.getDate() + penaEfectivaDias);
             }
             
-            // Determinar beneficios según legislación
             const fechaLimite = new Date('2017-07-28');
             const esPosterior = fechaHecho >= fechaLimite;
             
@@ -550,17 +583,15 @@
                 });
             } else if (tipoDelito === '56bis' && esPosterior) {
                 const fechaRegimenPreparatorio = sumarAñosAFecha(fechaFinCondena, -2);
-                
                 beneficios.push({
                     tipo: 'Régimen Preparatorio de Libertad (Art. 56 quater)',
                     fecha: formatearFecha(fechaRegimenPreparatorio)
                 });
-                
                 alertas.push({
                     mensaje: 'No puede acceder a otros beneficios por ser delito del Art. 56 bis con hecho posterior al 28/07/2017',
                     tipo: 'alerta'
                 });
-            } else {
+            } else if (tipoCondena === 'temporal') {
                 if (!esPosterior) {
                     const fechaSalidasTransitorias = sumarDiasAFecha(fechaInicioCondena, Math.floor(penaEfectivaDias / 2));
                     beneficios.push({
@@ -575,9 +606,9 @@
                     });
                     
                     let fechaSalidasTransitorias = new Date(fechaPeriodoPrueba);
-                    if (penaTotalDias > 3650) { // Más de 10 años
+                    if (penaTotalDias > 3650) {
                         fechaSalidasTransitorias = sumarAñosAFecha(fechaPeriodoPrueba, 1);
-                    } else if (penaTotalDias > 1825) { // Más de 5 años
+                    } else if (penaTotalDias > 1825) {
                         fechaSalidasTransitorias = sumarMesesAFecha(fechaPeriodoPrueba, 6);
                     }
                     beneficios.push({
@@ -589,10 +620,10 @@
                 let tieneLibertadCondicional = false;
                 if (reincidente === 'no') {
                     let fechaLibertadCondicional;
-                    if (penaTotalDias > 1095) { // Más de 3 años
+                    if (penaTotalDias > 1095) {
                         const fraccionCondena = Math.floor(penaEfectivaDias * 2 / 3);
                         fechaLibertadCondicional = sumarDiasAFecha(fechaInicioCondena, fraccionCondena);
-                    } else { // 3 años o menos
+                    } else {
                         fechaLibertadCondicional = sumarMesesAFecha(fechaInicioCondena, 8);
                     }
                     beneficios.push({
@@ -617,7 +648,6 @@
                 }
             }
             
-            // Mostrar resultados
             mostrarResultados({
                 nombreCondenado,
                 delito,
@@ -625,7 +655,6 @@
                 reincidente: reincidente === 'si',
                 tipoCondena,
                 penaTotalDias,
-                diasDetencionPreventiva,
                 penaEfectivaDias,
                 fechaFinCondena: fechaFinCondena ? formatearFecha(fechaFinCondena) : 'No aplica',
                 beneficios,
@@ -661,7 +690,7 @@
                         <strong>Pena total impuesta:</strong> ${convertirDiasAMDM(resultados.penaTotalDias)}
                     </div>
                     <div class="resultado-item">
-                        <strong>Días de detención preventiva:</strong> ${resultados.diasDetencionPreventiva} días
+                        <strong>Días de detención preventiva:</strong> ${resultados.penaTotalDias - resultados.penaEfectivaDias} días
                     </div>
                     <div class="resultado-item">
                         <strong>Pena efectiva a cumplir:</strong> ${convertirDiasAMDM(resultados.penaEfectivaDias)}
@@ -672,7 +701,6 @@
                 `;
             }
             
-            // Mostrar beneficios
             if (resultados.beneficios.length > 0) {
                 html += '<h3>Beneficios Posibles:</h3>';
                 resultados.beneficios.sort((a, b) => new Date(a.fecha.split('/').reverse().join('-')) - new Date(b.fecha.split('/').reverse().join('-')));
@@ -685,7 +713,6 @@
                 });
             }
 
-            // Mostrar alertas
             if (resultados.alertas.length > 0) {
                 html += '<h3>Información Importante:</h3>';
                 resultados.alertas.forEach(alerta => {
