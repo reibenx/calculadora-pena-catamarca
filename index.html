@@ -260,7 +260,7 @@
         
         <div class="content">
             <div class="info-box">
-                <strong>Información importante:</strong> Esta calculadora aplica la legislación vigente en Argentina (Ley 24.660 y modificaciones). Los beneficios dependen de la fecha del hecho, tipo de delito y reincidencia.
+                <strong>Información importante:</strong> Esta calculadora aplica la legislación vigente en Argentina (Ley 24.660 y modificaciones). Los beneficios dependen de la fecha del hecho, tipo de delito y reincidencia. Todos los cálculos se realizan considerando años de 365 días.
             </div>
             
             <form id="condenaForm">
@@ -441,26 +441,54 @@
             return `${dia}/${mes}/${año}`;
         }
         
-        function esAñoBisiesto(año) {
-            return (año % 4 === 0 && año % 100 !== 0) || (año % 400 === 0);
-        }
-        
-        function sumarDiasAFecha(fecha, dias) {
+        // Función para sumar días considerando años de 365 días exactos
+        function sumarDias365(fecha, dias) {
             const nuevaFecha = new Date(fecha);
-            nuevaFecha.setDate(nuevaFecha.getDate() + dias);
+            
+            // Calculamos cuántos años completos de 365 días hay en los días a sumar
+            const añosCompletos = Math.floor(dias / 365);
+            const diasRestantes = dias % 365;
+            
+            // Sumamos los años completos
+            nuevaFecha.setFullYear(nuevaFecha.getFullYear() + añosCompletos);
+            
+            // Sumamos los días restantes
+            nuevaFecha.setDate(nuevaFecha.getDate() + diasRestantes);
+            
             return nuevaFecha;
         }
         
-        function sumarMesesAFecha(fecha, meses) {
+        // Función para sumar meses considerando meses de 30 días exactos
+        function sumarMeses30(fecha, meses) {
             const nuevaFecha = new Date(fecha);
-            nuevaFecha.setMonth(nuevaFecha.getMonth() + meses);
+            
+            // Calculamos cuántos años completos de 12 meses hay
+            const añosCompletos = Math.floor(meses / 12);
+            const mesesRestantes = meses % 12;
+            
+            // Sumamos los años completos
+            nuevaFecha.setFullYear(nuevaFecha.getFullYear() + añosCompletos);
+            
+            // Sumamos los meses restantes
+            nuevaFecha.setMonth(nuevaFecha.getMonth() + mesesRestantes);
+            
             return nuevaFecha;
         }
         
-        function sumarAñosAFecha(fecha, años) {
+        // Función para restar meses naturales (calendario)
+        function restarMeses(fecha, meses) {
             const nuevaFecha = new Date(fecha);
-            nuevaFecha.setFullYear(nuevaFecha.getFullYear() + años);
+            nuevaFecha.setMonth(nuevaFecha.getMonth() - meses);
             return nuevaFecha;
+        }
+        
+        // Función para calcular fecha de finalización considerando años de 365 días
+        function calcularFechaFin(fechaInicio, años, meses, dias) {
+            // Convertimos todo a días
+            const totalDias = (años * 365) + (meses * 30) + dias;
+            
+            // Usamos nuestra función que considera años de 365 días
+            return sumarDias365(fechaInicio, totalDias);
         }
         
         function calcularCondena(e) {
@@ -514,8 +542,12 @@
             if (tipoCondena === 'temporal') {
                 penaEfectivaDias = penaTotalDias - diasDetencionPreventiva;
                 
-                // Calcular fecha de fin de condena usando funciones que manejan años bisiestos
-                fechaFinCondena = sumarDiasAFecha(fechaInicioCondena, penaEfectivaDias);
+                // Calcular fecha de fin de condena usando años de 365 días
+                const penaAnos = Math.floor(penaEfectivaDias / 365);
+                const penaMeses = Math.floor((penaEfectivaDias % 365) / 30);
+                const penaDiasRestantes = (penaEfectivaDias % 365) % 30;
+                
+                fechaFinCondena = calcularFechaFin(fechaInicioCondena, penaAnos, penaMeses, penaDiasRestantes);
             }
             
             // Determinar beneficios según legislación
@@ -534,7 +566,8 @@
             } 
             // Caso especial: Delitos Art. 56 bis con hechos posteriores al 28/07/2017
             else if (tipoDelito === '56bis' && esPosterior) {
-                const fechaRegimenPreparatorio = sumarAñosAFecha(fechaFinCondena, -2);
+                // Restar 2 años usando años de 365 días
+                const fechaRegimenPreparatorio = sumarDias365(fechaFinCondena, -730);
                 
                 beneficios.push({
                     tipo: 'Régimen Preparatorio de Libertad (Art. 56 quater)',
@@ -550,7 +583,7 @@
             else {
                 // Para hechos anteriores al 28/07/2017 - calcular salidas transitorias
                 if (!esPosterior) {
-                    const fechaSalidasTransitorias = sumarDiasAFecha(fechaInicioCondena, Math.floor(penaEfectivaDias / 2));
+                    const fechaSalidasTransitorias = sumarDias365(fechaInicioCondena, Math.floor(penaEfectivaDias / 2));
                     
                     beneficios.push({
                         tipo: 'Salidas Transitorias',
@@ -560,7 +593,7 @@
                 // Para hechos posteriores al 28/07/2017 - calcular período de prueba y salidas transitorias
                 else {
                     // Período de prueba (solo para hechos posteriores al 28/07/2017 con prisión efectiva temporal)
-                    const fechaPeriodoPrueba = sumarDiasAFecha(fechaInicioCondena, Math.floor(penaEfectivaDias / 2));
+                    const fechaPeriodoPrueba = sumarDias365(fechaInicioCondena, Math.floor(penaEfectivaDias / 2));
                     
                     beneficios.push({
                         tipo: 'Período de Prueba',
@@ -571,9 +604,9 @@
                     let fechaSalidasTransitorias = new Date(fechaPeriodoPrueba);
                     
                     if (penaTotalDias > 3650) { // Más de 10 años
-                        fechaSalidasTransitorias = sumarAñosAFecha(fechaPeriodoPrueba, 1);
+                        fechaSalidasTransitorias = sumarDias365(fechaPeriodoPrueba, 365);
                     } else if (penaTotalDias > 1825) { // Más de 5 años
-                        fechaSalidasTransitorias = sumarMesesAFecha(fechaPeriodoPrueba, 6);
+                        fechaSalidasTransitorias = sumarMeses30(fechaPeriodoPrueba, 6);
                     }
                     // Para penas menores o iguales a 5 años, la fecha de salidas transitorias es la misma que el período de prueba
                     
@@ -590,9 +623,9 @@
                     
                     if (penaTotalDias > 1095) { // Más de 3 años
                         const fraccionCondena = Math.floor(penaEfectivaDias * 2 / 3);
-                        fechaLibertadCondicional = sumarDiasAFecha(fechaInicioCondena, fraccionCondena);
+                        fechaLibertadCondicional = sumarDias365(fechaInicioCondena, fraccionCondena);
                     } else { // 3 años o menos
-                        fechaLibertadCondicional = sumarMesesAFecha(fechaInicioCondena, 8);
+                        fechaLibertadCondicional = sumarMeses30(fechaInicioCondena, 8);
                     }
                     
                     beneficios.push({
@@ -611,7 +644,7 @@
                 // Libertad asistida - solo si no tiene libertad condicional
                 if (!tieneLibertadCondicional) {
                     const mesesAntes = esPosterior ? 3 : 6;
-                    const fechaLibertadAsistida = sumarMesesAFecha(fechaFinCondena, -mesesAntes);
+                    const fechaLibertadAsistida = restarMeses(fechaFinCondena, mesesAntes);
                     
                     beneficios.push({
                         tipo: 'Libertad Asistida',
