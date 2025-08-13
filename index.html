@@ -801,10 +801,7 @@
                         const fechaFin = new Date(fechaFinStr + 'T00:00:00Z');
                         if (fechaInicio <= fechaFin) {
                             const diffTime = Math.abs(fechaFin - fechaInicio);
-                            // --- INICIO DE LA MODIFICACIÓN ---
-                            // Se elimina el "+ 1" para no contar ambos extremos.
                             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                            // --- FIN DE LA MODIFICACIÓN ---
                             diasDetencionPreventiva += diffDays;
                         }
                     }
@@ -877,9 +874,14 @@
                 if (reincidente === 'no') {
                     let fechaLibertadCondicional;
                     if (penaTotalDias > 1095) { // Más de 3 años
+                        // --- INICIO DE LA MODIFICACIÓN ---
+                        // 1. Calcular los 2/3 de la pena total en días.
                         const dosTerciosPenaTotalEnDias = Math.floor(penaTotalDias * 2 / 3);
-                        const diasRestantesParaLibertad = dosTerciosPenaTotalEnDias - diasDetencionPreventiva;
-                        fechaLibertadCondicional = sumarDiasAFecha(new Date(fechaInicioCondena), diasRestantesParaLibertad);
+                        // 2. Sumar ese tiempo a la fecha de inicio de la condena.
+                        const fechaDosTerciosBruta = sumarDiasAFecha(new Date(fechaInicioCondena), dosTerciosPenaTotalEnDias);
+                        // 3. A la fecha resultante, restar los días de detención preventiva.
+                        fechaLibertadCondicional = sumarDiasAFecha(fechaDosTerciosBruta, -diasDetencionPreventiva);
+                        // --- FIN DE LA MODIFICACIÓN ---
                     } else { // 3 años o menos
                         fechaLibertadCondicional = sumarMesesAFecha(new Date(fechaInicioCondena), 8);
                     }
@@ -963,7 +965,22 @@
             
             if (resultados.beneficios.length > 0) {
                 html += '<h3>Beneficios Posibles:</h3>';
-                resultados.beneficios.sort((a, b) => new Date(a.fecha.split('/').reverse().join('-')) - new Date(b.fecha.split('/').reverse().join('-')));
+                // --- INICIO DE LA MODIFICACIÓN ---
+                const order = {
+                    "Período de Prueba": 1,
+                    "Salidas Transitorias": 2,
+                    "Libertad Condicional": 3,
+                    "Libertad Asistida": 4,
+                    "Régimen Preparatorio de Libertad (Art. 56 quater)": 5
+                };
+
+                resultados.beneficios.sort((a, b) => {
+                    const orderA = order[a.tipo] || 99;
+                    const orderB = order[b.tipo] || 99;
+                    return orderA - orderB;
+                });
+                // --- FIN DE LA MODIFICACIÓN ---
+
                 resultados.beneficios.forEach(beneficio => {
                     html += `
                         <div class="resultado-item beneficio-item">
