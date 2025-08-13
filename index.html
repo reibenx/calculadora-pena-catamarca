@@ -602,7 +602,6 @@
                 return;
             }
 
-            // --- INICIO DE LA MODIFICACIÓN ---
             // Formatear los beneficios en un solo texto
             const beneficiosTexto = lastResults.beneficios.map(b => `${b.tipo}: ${b.fecha}`).join('; ') || 'No aplica';
 
@@ -650,7 +649,6 @@
                 }
                 document.getElementById('auth-status').innerText = errorMessage;
             });
-            // --- FIN DE LA MODIFICACIÓN ---
         }
 
         // --- FUNCIONES DEL MODAL ---
@@ -782,6 +780,7 @@
             let penaTotalDias = 0;
             let penaEfectivaDias = 0;
             let fechaFinCondena = null;
+            let diasDetencionPreventiva = 0;
             
             if (tipoCondena === 'temporal') {
                 const penaAnos = parseInt(document.getElementById('penaAnos').value) || 0;
@@ -793,7 +792,6 @@
                 fechaFinPenaBruta.setUTCMonth(fechaFinPenaBruta.getUTCMonth() + penaMeses);
                 fechaFinPenaBruta.setUTCDate(fechaFinPenaBruta.getUTCDate() + penaDias);
                 
-                let diasDetencionPreventiva = 0;
                 const periodosElements = document.querySelectorAll('.periodo-detencion');
                 periodosElements.forEach(periodo => {
                     const fechaInicioStr = periodo.querySelector('.fechaInicio').value;
@@ -810,7 +808,7 @@
                 });
 
                 fechaFinCondena = new Date(fechaFinPenaBruta);
-                fechaFinCondena.setUTCDate(fechaFinCondena.getUTCDate() - diasDetencionPreventiva);
+                fechaFinCondena.setUTCDate(fechaFinCondena.getUTCDate() - diasDetencionPreventiva + 1); // +1 día
                 
                 const diffPenaTotalMs = fechaFinPenaBruta.getTime() - fechaInicioCondena.getTime();
                 penaTotalDias = Math.round(diffPenaTotalMs / (1000 * 60 * 60 * 24));
@@ -850,7 +848,11 @@
                         fecha: formatearFecha(fechaSalidasTransitorias)
                     });
                 } else {
-                    const fechaPeriodoPrueba = sumarDiasAFecha(new Date(fechaInicioCondena), Math.floor(penaEfectivaDias / 2));
+                    const mitadPenaTotalEnDias = Math.floor(penaTotalDias / 2);
+                    const fechaMitadBruta = sumarDiasAFecha(new Date(fechaInicioCondena), mitadPenaTotalEnDias);
+                    let fechaPeriodoPrueba = sumarDiasAFecha(fechaMitadBruta, -diasDetencionPreventiva);
+                    fechaPeriodoPrueba = sumarDiasAFecha(fechaPeriodoPrueba, 2); // +2 días
+                    
                     beneficios.push({
                         tipo: 'Período de Prueba',
                         fecha: formatearFecha(fechaPeriodoPrueba)
@@ -871,12 +873,14 @@
                 let tieneLibertadCondicional = false;
                 if (reincidente === 'no') {
                     let fechaLibertadCondicional;
-                    if (penaTotalDias > 1095) {
-                        const fraccionCondena = Math.floor(penaEfectivaDias * 2 / 3);
-                        fechaLibertadCondicional = sumarDiasAFecha(new Date(fechaInicioCondena), fraccionCondena);
-                    } else {
+                    if (penaTotalDias > 1095) { // Más de 3 años
+                        const dosTerciosPenaTotalEnDias = Math.floor(penaTotalDias * 2 / 3);
+                        const diasRestantesParaLibertad = dosTerciosPenaTotalEnDias - diasDetencionPreventiva;
+                        fechaLibertadCondicional = sumarDiasAFecha(new Date(fechaInicioCondena), diasRestantesParaLibertad);
+                    } else { // 3 años o menos
                         fechaLibertadCondicional = sumarMesesAFecha(new Date(fechaInicioCondena), 8);
                     }
+                    fechaLibertadCondicional = sumarDiasAFecha(fechaLibertadCondicional, 2); // +2 días
                     beneficios.push({
                         tipo: 'Libertad Condicional',
                         fecha: formatearFecha(fechaLibertadCondicional)
