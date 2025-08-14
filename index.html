@@ -1,583 +1,532 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Juzgado de Ejecución Penal de Segunda Nominación de la Prov. de Catamarca, Rep. Argentina</title>
-  <!-- Google API -->
-  <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-  <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
-  <style>
-    * { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; box-sizing: border-box; }
-    body { background: linear-gradient(135deg, #2c3e50, #34495e); min-height: 100vh; padding: 20px; color: #333; display:flex; justify-content:center; }
-    .container { width:100%; max-width:900px; margin:20px; background:#fff; border-radius:20px; box-shadow:0 20px 50px rgba(0,0,0,.4), 0 0 0 2px rgba(255,255,255,.1); overflow:hidden; transform:perspective(1200px); transition:transform .4s ease; }
-    .container:hover { transform: scale(1.01); }
-    .header { background: linear-gradient(90deg, #003366, #005cb3); color:#fff; padding:20px 40px; text-align:center; position:relative; border-bottom:5px solid #fdbb2d; min-height:120px; display:flex; justify-content:center; align-items:center; }
-    .header-logo { position:absolute; top:50%; left:40px; transform:translateY(-50%); width:80px; height:auto; background:rgba(255,255,255,.1); border-radius:50%; padding:5px; box-shadow:0 0 15px rgba(0,0,0,.3); }
-    .header-text-container { padding-left:100px; padding-right:40px; }
-    .header h1 { margin:0 0 5px 0; font-size:1.5rem; font-weight:500; text-shadow:0 2px 4px rgba(0,0,0,.5); }
-    .header p { margin:0; opacity:1; font-size:2rem; font-weight:bold; text-shadow:0 3px 8px rgba(0,0,0,.5); letter-spacing:1px; }
-    .content { padding:30px; }
-    .form-section { margin-bottom:30px; padding:25px; border:none; border-radius:15px; background:#f9fafb; box-shadow:0 5px 15px rgba(0,0,0,.07); transition: transform .3s ease, box-shadow .3s ease; }
-    .form-section:hover { transform: translateY(-5px); box-shadow:0 12px 25px rgba(0,0,0,.1); }
-    .form-section h2 { margin-top:0; color:#003366; border-bottom:2px solid #005cb3; padding-bottom:10px; font-size:1.6rem; font-weight:700; }
-    .form-group { margin-bottom:20px; }
-    label { display:block; margin-bottom:8px; font-weight:600; color:#374151; font-size:1rem; }
-    input, select { width:100%; padding:12px 15px; border:2px solid #d1d5db; border-radius:8px; font-size:1rem; transition:border-color .3s, box-shadow .3s; }
-    input:focus, select:focus { border-color:#0066cc; outline:none; box-shadow:0 0 0 3px rgba(0,102,204,.2); }
-    .periodo-detencion { display:flex; gap:15px; margin-bottom:10px; align-items:center; }
-    .periodo-detencion input { flex:1; }
-    .btn { background: linear-gradient(145deg, #007bff, #0056b3); color:white; border:none; padding:12px 25px; border-radius:8px; cursor:pointer; font-size:1.1rem; font-weight:bold; transition: all .3s ease; box-shadow:0 4px 10px rgba(0,91,179,.3); text-shadow:0 1px 2px rgba(0,0,0,.2); }
-    .btn:hover { background: linear-gradient(145deg, #0069d9, #004a99); transform: translateY(-3px) scale(1.05); box-shadow:0 7px 15px rgba(0,91,179,.4); }
-    .btn:active { transform: translateY(-1px) scale(1.02); }
-    .btn-danger { background: linear-gradient(145deg, #dc3545, #b02a37); box-shadow:0 4px 10px rgba(176,42,55,.3); }
-    .btn-danger:hover { background: linear-gradient(145deg, #c82333, #a12430); box-shadow:0 7px 15px rgba(176,42,55,.4); }
-    .btn-success { background: linear-gradient(145deg, #28a745, #1e7e34); font-size:1.3rem; padding:15px 30px; margin-top:20px; box-shadow:0 4px 10px rgba(30,126,52,.3); }
-    .btn-success:hover { background: linear-gradient(145deg, #218838, #19692c); box-shadow:0 7px 15px rgba(30,126,52,.4); }
-    .btn-pdf { background: linear-gradient(145deg, #8e44ad, #7d3c98); margin-top:20px; box-shadow:0 4px 10px rgba(125,60,152,.3); }
-    .btn-pdf:hover { background: linear-gradient(145deg, #803ea5, #6d3284); box-shadow:0 7px 15px rgba(125,60,152,.4); }
-    .resultados { margin-top:30px; padding:25px; background:#eef2f7; border-radius:15px; border-left:6px solid #005cb3; }
-    .resultados h2 { color:#003366; margin-top:0; font-size:1.8rem; font-weight:700; }
-    .resultados h3 { color:#003366; font-size:1.4rem; margin-top:25px; margin-bottom:15px; font-weight:600; }
-    .resultado-item { margin-bottom:15px; padding:15px; background:white; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,.05); font-size:1.05rem; border-left:4px solid transparent; transition:border-color .3s; }
-    .resultado-item:hover { border-left-color:#007bff; }
-    .resultado-item strong { color:#003366; font-weight:600; font-size:1.1rem; margin-right:8px; }
-    .beneficio-item { background:#d4edda; border-left-color:#28a745; }
-    .alerta-item { background:#fff3cd; border-left-color:#ffc107; }
-    .error-item { background:#f8d7da; border-left-color:#dc3545; }
-    .footer { background:#2c3e50; color:rgba(255,255,255,.8); text-align:center; padding:20px; border-top:5px solid #fdbb2d; }
-    .footer p { margin:0; font-size:1rem; font-weight:500; }
-    .hidden { display:none; }
-    .info-box { background:#d1ecf1; border:1px solid #bee5eb; border-radius:10px; padding:15px 20px; margin-bottom:20px; font-size:1rem; color:#0c5460; }
-    .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); display:flex; justify-content:center; align-items:center; z-index:1000; opacity:0; visibility:hidden; transition:opacity .3s, visibility .3s; }
-    .modal-overlay.visible { opacity:1; visibility:visible; }
-    .modal-content { background:white; padding:30px; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,.3); text-align:center; max-width:400px; width:90%; transform:scale(.9); transition:transform .3s; }
-    .modal-overlay.visible .modal-content { transform:scale(1); }
-    .modal-content h3 { margin-top:0; color:#333; }
-    .modal-buttons { margin-top:20px; display:flex; justify-content:center; gap:15px; }
-    @media (max-width:768px){ .header{flex-direction:column; padding:20px;} .header-logo{position:static; transform:none; margin-bottom:15px; width:70px;} .header-text-container{padding:0;} .header h1{font-size:1.2rem;} .header p{font-size:1.8rem;} .content{padding:20px;} .periodo-detencion{flex-direction:column; gap:10px;} }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Juzgado de Ejecución Penal de Segunda Nominación de la Prov. de Catamarca, Rep. Argentina</title>
+<script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+<script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+<style>
+* { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; box-sizing: border-box; }
+body { background: linear-gradient(135deg, #2c3e50, #34495e); min-height: 100vh; padding: 20px; color: #333; display:flex; justify-content:center; }
+.container { width:100%; max-width:900px; margin:20px; background:#fff; border-radius:20px; box-shadow:0 20px 50px rgba(0,0,0,.4), 0 0 0 2px rgba(255,255,255,.1); overflow:hidden; transform:perspective(1200px);
+transition:transform .4s ease; }
+.container:hover { transform: scale(1.01); }
+.header { background: linear-gradient(90deg, #003366, #005cb3); color:#fff; padding:20px 40px; text-align:center; position:relative; border-bottom:5px solid #fdbb2d; min-height:120px; display:flex; justify-content:center; align-items:center; }
+.header-logo { position:absolute; top:50%; left:40px; transform:translateY(-50%); width:80px; height:auto; background:rgba(255,255,255,.1); border-radius:50%; padding:5px; box-shadow:0 0 15px rgba(0,0,0,.3); }
+.header-text-container { padding-left:100px; padding-right:40px; }
+.header h1 { margin:0 0 5px 0; font-size:1.5rem; font-weight:500; text-shadow:0 2px 4px rgba(0,0,0,.5); }
+.header p { margin:0; opacity:1; font-size:2rem; font-weight:bold; text-shadow:0 3px 8px rgba(0,0,0,.5); letter-spacing:1px; }
+.content { padding:30px; }
+.form-section { margin-bottom:30px; padding:25px; border:none; border-radius:15px; background:#f9fafb; box-shadow:0 5px 15px rgba(0,0,0,.07); transition: transform .3s ease, box-shadow .3s ease; }
+.form-section:hover { transform: translateY(-5px); box-shadow:0 12px 25px rgba(0,0,0,.1); }
+.form-section h2 { margin-top:0; color:#003366; border-bottom:2px solid #005cb3; padding-bottom:10px; font-size:1.6rem; font-weight:700; }
+.form-group { margin-bottom:20px; }
+label { display:block; margin-bottom:8px; font-weight:600; color:#374151; font-size:1rem; }
+input, select { width:100%; padding:12px 15px; border:2px solid #d1d5db; border-radius:8px; font-size:1rem; transition:border-color .3s, box-shadow .3s; }
+input:focus, select:focus { border-color:#0066cc; outline:none; box-shadow:0 0 0 3px rgba(0,102,204,.2); }
+.periodo-detencion { display:flex; gap:15px; margin-bottom:10px; align-items:center; }
+.periodo-detencion input { flex:1; }
+.btn { background: linear-gradient(145deg, #007bff, #0056b3); color:white; border:none; padding:12px 25px; border-radius:8px; cursor:pointer; font-size:1.1rem; font-weight:bold; transition: all .3s ease;
+box-shadow:0 4px 10px rgba(0,91,179,.3); text-shadow:0 1px 2px rgba(0,0,0,.2); }
+.btn:hover { background: linear-gradient(145deg, #0069d9, #004a99); transform: translateY(-3px) scale(1.05); box-shadow:0 7px 15px rgba(0,91,179,.4); }
+.btn:active { transform: translateY(-1px) scale(1.02); }
+.btn-danger { background: linear-gradient(145deg, #dc3545, #b02a37); box-shadow:0 4px 10px rgba(176,42,55,.3); }
+.btn-danger:hover { background: linear-gradient(145deg, #c82333, #a12430); box-shadow:0 7px 15px rgba(176,42,55,.4); }
+.btn-success { background: linear-gradient(145deg, #28a745, #1e7e34); font-size:1.3rem; padding:15px 30px; margin-top:20px; box-shadow:0 4px 10px rgba(30,126,52,.3); }
+.btn-success:hover { background: linear-gradient(145deg, #218838, #19692c); box-shadow:0 7px 15px rgba(30,126,52,.4); }
+.btn-pdf { background: linear-gradient(145deg, #8e44ad, #7d3c98); margin-top:20px; box-shadow:0 4px 10px rgba(125,60,152,.3); }
+.btn-pdf:hover { background: linear-gradient(145deg, #803ea5, #6d3284); box-shadow:0 7px 15px rgba(125,60,152,.4); }
+.resultados { margin-top:30px; padding:25px; background:#eef2f7; border-radius:15px; border-left:6px solid #005cb3; }
+.resultados h2 { color:#003366; margin-top:0; font-size:1.8rem; font-weight:700; }
+.resultados h3 { color:#003366; font-size:1.4rem; margin-top:25px; margin-bottom:15px; font-weight:600; }
+.resultado-item { margin-bottom:15px; padding:15px; background:white; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,.05); font-size:1.05rem; border-left:4px solid transparent; transition:border-color .3s; }
+.resultado-item:hover { border-left-color:#007bff; }
+.resultado-item strong { color:#003366; font-weight:600; font-size:1.1rem; margin-right:8px; }
+.beneficio-item { background:#d4edda; border-left-color:#28a745; }
+.alerta-item { background:#fff3cd; border-left-color:#ffc107; }
+.error-item { background:#f8d7da; border-left-color:#dc3545; }
+.footer { background:#2c3e50; color:rgba(255,255,255,.8); text-align:center; padding:20px; border-top:5px solid #fdbb2d; }
+.footer p { margin:0; font-size:1rem; font-weight:500; }
+.hidden { display:none; }
+.info-box { background:#d1ecf1; border:1px solid #bee5eb; border-radius:10px; padding:15px 20px; margin-bottom:20px; font-size:1rem; color:#0c5460; }
+.modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); display:flex; justify-content:center; align-items:center; z-index:1000; opacity:0; visibility:hidden; transition:opacity .3s, visibility .3s; }
+.modal-overlay.visible { opacity:1; visibility:visible; }
+.modal-content { background:white; padding:30px; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,.3); text-align:center; max-width:400px; width:90%; transform:scale(.9); transition:transform .3s; }
+.modal-overlay.visible .modal-content { transform:scale(1); }
+.modal-content h3 { margin-top:0; color:#333; }
+.modal-buttons { margin-top:20px; display:flex; justify-content:center; gap:15px; }
+@media (max-width:768px){ .header{flex-direction:column; padding:20px;} .header-logo{position:static; transform:none; margin-bottom:15px; width:70px;} .header-text-container{padding:0;} .header h1{font-size:1.2rem;} .header p{font-size:1.8rem;} .content{padding:20px;} .periodo-detencion{flex-direction:column; gap:10px;} }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <img src="logo-poder-judicial.jpeg" alt="Logo Poder Judicial de Catamarca" class="header-logo" />
-      <div class="header-text-container">
-        <h1>Juzgado de Ejecución Penal de Segunda Nominación de la Prov. de Catamarca, Rep. Argentina</h1>
-        <p>Cómputo de Pena</p>
-      </div>
-    </div>
-
-    <div class="content">
-      <div class="info-box">
-        <strong>Información importante:</strong> Esta calculadora aplica la legislación vigente en Argentina (Ley 24.660 y modificaciones). Cómputo respetando <em>dies a quo non computatur</em> (no se cuenta el día inicial).
-      </div>
-
-      <form id="condenaForm">
-        <div class="form-section">
-          <h2>Datos Personales</h2>
-          <div class="form-group">
-            <label for="nombreCondenado">Nombre del condenado:</label>
-            <input type="text" id="nombreCondenado" placeholder="Apellido y Nombre" required />
-          </div>
-          <div class="form-group">
-            <label for="delito">Delito:</label>
-            <input type="text" id="delito" placeholder="Descripción del delito" required />
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h2>Datos de la Condena</h2>
-          <div class="form-group">
-            <label for="tipoCondena">Tipo de condena:</label>
-            <select id="tipoCondena" required>
-              <option value="">Seleccione...</option>
-              <option value="temporal">Prisión efectiva temporal</option>
-              <option value="perpetua">Prisión efectiva perpetua</option>
-            </select>
-          </div>
-          <div id="penaTemporal" class="form-group hidden">
-            <label for="penaImpuesta">Pena impuesta (años, meses, días):</label>
-            <div style="display:flex; gap:10px;">
-              <input type="number" id="penaAnos" placeholder="Años" min="0" />
-              <input type="number" id="penaMeses" placeholder="Meses" min="0" max="11" />
-              <input type="number" id="penaDias" placeholder="Días" min="0" max="30" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="fechaInicioCondena">Fecha de inicio de condena:</label>
-            <input type="date" id="fechaInicioCondena" required />
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h2>Detenciones Preventivas</h2>
-          <p>Ingrese los períodos de detención previos a la condena (si corresponde). Se computa <strong>de manera inclusiva</strong> (cuenta ambos extremos).</p>
-          <div id="detencionesContainer"></div>
-          <button type="button" class="btn" onclick="agregarPeriodo()">+ Agregar período</button>
-        </div>
-
-        <div class="form-section">
-          <h2>Datos del Hecho</h2>
-          <div class="form-group">
-            <label for="fechaHecho">Fecha del hecho:</label>
-            <input type="date" id="fechaHecho" required />
-          </div>
-          <div class="form-group">
-            <label for="tipoDelito">Tipo de delito:</label>
-            <select id="tipoDelito" required>
-              <option value="">Seleccione...</option>
-              <option value="56bis">Art. 56 bis (Ley 24.660)</option>
-              <option value="otro">Otro delito</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="reincidente">¿Es reincidente (Art. 50 CP)?</label>
-            <select id="reincidente" required>
-              <option value="">Seleccione...</option>
-              <option value="si">Sí</option>
-              <option value="no">No</option>
-            </select>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-success">Calcular Condena</button>
-      </form>
-
-      <div id="resultados" class="resultados hidden">
-        <h2>Informe de Cómputo de Condena</h2>
-        <div id="resultadosContainer"></div>
-        <button id="btnPDF" class="btn btn-pdf">Generar PDF para Imprimir</button>
-        <button id="btnGuardarSheets" class="btn" style="background: linear-gradient(145deg, #28a745, #1e7e34);">Guardar en Google Sheets</button>
-        <div id="auth-status" style="margin-top:15px; font-weight:500;"></div>
-      </div>
-    </div>
-
-    <div class="footer"><p>Create by RBM 2025</p></div>
-  </div>
-
-  <!-- Modal de Confirmación -->
-  <div id="confirmationModal" class="modal-overlay">
-    <div class="modal-content">
-      <h3>Confirmación</h3>
-      <p id="modalMessage">¿Está seguro de que desea guardar estos datos en Google Sheets?</p>
-      <div class="modal-buttons">
-        <button id="confirmBtn" class="btn btn-success">Sí, guardar</button>
-        <button id="cancelBtn" class="btn btn-danger">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // =============================================
-    //  MÓDULO DE FECHAS – UTC + CALENDARIO REAL
-    //  Reglas: dies a quo non computatur (no se cuenta el día inicial)
-    // =============================================
-
-    function parseYMD(ymd) { // 'YYYY-MM-DD' -> Date UTC
-      const [Y, M, D] = ymd.split('-').map(Number);
-      return new Date(Date.UTC(Y, (M || 1) - 1, D || 1));
+<div class="container">
+<div class="header">
+<img src="logo-poder-judicial.jpeg" alt="Logo Poder Judicial de Catamarca" class="header-logo" />
+<div class="header-text-container">
+<h1>Juzgado de Ejecución Penal de Segunda Nominación de la Prov. de Catamarca, Rep. Argentina</h1>
+<p>Cómputo de Pena</p>
+</div>
+</div>
+<div class="content">
+<div class="info-box">
+<strong>Información importante:</strong> Esta calculadora aplica la legislación vigente en Argentina (Ley 24.660 y modificaciones).
+Cómputo respetando <em>dies a quo non computatur</em> (no se cuenta el día inicial).
+</div>
+<form id="condenaForm">
+<div class="form-section">
+<h2>Datos Personales</h2>
+<div class="form-group">
+<label for="nombreCondenado">Nombre del condenado:</label>
+<input type="text" id="nombreCondenado" placeholder="Apellido y Nombre" required />
+</div>
+<div class="form-group">
+<label for="delito">Delito:</label>
+<input type="text" id="delito" placeholder="Descripción del delito" required />
+</div>
+</div>
+<div class="form-section">
+<h2>Datos de la Condena</h2>
+<div class="form-group">
+<label for="tipoCondena">Tipo de condena:</label>
+<select id="tipoCondena" required>
+<option value="">Seleccione...</option>
+<option value="temporal">Prisión efectiva temporal</option>
+<option value="perpetua">Prisión efectiva perpetua</option>
+</select>
+</div>
+<div id="penaTemporal" class="form-group hidden">
+<label for="penaImpuesta">Pena impuesta (años, meses, días):</label>
+<div style="display:flex; gap:10px;">
+<input type="number" id="penaAnos" placeholder="Años" min="0" />
+<input type="number" id="penaMeses" placeholder="Meses" min="0" max="11" />
+<input type="number" id="penaDias" placeholder="Días" min="0" max="30" />
+</div>
+</div>
+<div class="form-group">
+<label for="fechaInicioCondena">Fecha de inicio de condena:</label>
+<input type="date" id="fechaInicioCondena" required />
+</div>
+</div>
+<div class="form-section">
+<h2>Detenciones Preventivas</h2>
+<p>Ingrese los períodos de detención previos a la condena (si corresponde). Se computa <strong>de manera inclusiva</strong> (cuenta ambos extremos).</p>
+<div id="detencionesContainer"></div>
+<button type="button" class="btn" onclick="agregarPeriodo()">+ Agregar período</button>
+</div>
+<div class="form-section">
+<h2>Datos del Hecho</h2>
+<div class="form-group">
+<label for="fechaHecho">Fecha del hecho:</label>
+<input type="date" id="fechaHecho" required />
+</div>
+<div class="form-group">
+<label for="tipoDelito">Tipo de delito:</label>
+<select id="tipoDelito" required>
+<option value="">Seleccione...</option>
+<option value="56bis">Art. 56 bis (Ley 24.660)</option>
+<option value="otro">Otro delito</option>
+</select>
+</div>
+<div class="form-group">
+<label for="reincidente">¿Es reincidente (Art. 50 CP)?</label>
+<select id="reincidente" required>
+<option value="">Seleccione...</option>
+<option value="si">Sí</option>
+<option value="no">No</option>
+</select>
+</div>
+</div>
+<button type="submit" class="btn btn-success">Calcular Condena</button>
+</form>
+<div id="resultados" class="resultados hidden">
+<h2>Informe de Cómputo de Condena</h2>
+<div id="resultadosContainer"></div>
+<button id="btnPDF" class="btn btn-pdf">Generar PDF para Imprimir</button>
+<button id="btnGuardarSheets" class="btn" style="background: linear-gradient(145deg, #28a745, #1e7e34);">Guardar en Google Sheets</button>
+<div id="auth-status" style="margin-top:15px; font-weight:500;"></div>
+</div>
+</div>
+<div class="footer"><p>Create by RBM 2025</p></div>
+</div>
+<div id="confirmationModal" class="modal-overlay">
+<div class="modal-content">
+<h3>Confirmación</h3>
+<p id="modalMessage">¿Está seguro de que desea guardar estos datos en Google Sheets?</p>
+<div class="modal-buttons">
+<button id="confirmBtn" class="btn btn-success">Sí, guardar</button>
+<button id="cancelBtn" class="btn btn-danger">Cancelar</button>
+</div>
+</div>
+</div>
+<script>
+// =============================================
+//  MÓDULO DE FECHAS – UTC + CALENDARIO REAL
+//  Reglas: dies a quo non computatur (no se cuenta el día inicial)
+// =============================================
+function parseYMD(ymd) { // 'YYYY-MM-DD' -> Date UTC
+const [Y, M, D] = ymd.split('-').map(Number);
+return new Date(Date.UTC(Y, (M || 1) - 1, D || 1));
+}
+function toUTCDateFromInput(value) { // input type=date -> Date UTC
+return new Date(value + 'T00:00:00Z');
+}
+function formatDMY(date) { // Date -> 'DD/MM/YYYY'
+if (!date || !(date instanceof Date) || isNaN(date)) return 'Fecha inválida';
+const d = String(date.getUTCDate()).padStart(2, '0');
+const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+const y = date.getUTCFullYear();
+return `${d}/${m}/${y}`;
+}
+function addDaysUTC(date, days) {
+const d = new Date(date.getTime());
+d.setUTCDate(d.getUTCDate() + days);
+return d;
+}
+function addMonthsUTC(date, months) { // respeta fin de mes y bisiestos
+const Y = date.getUTCFullYear();
+const M = date.getUTCMonth();
+const D = date.getUTCDate();
+const tM = M + months;
+const tY = Y + Math.floor(tM / 12);
+const mIdx = ((tM % 12) + 12) % 12;
+const lastDay = new Date(Date.UTC(tY, mIdx + 1, 0)).getUTCDate();
+const day = Math.min(D, lastDay);
+return new Date(Date.UTC(tY, mIdx, day));
+}
+function diffDaysExclusiveStart(start, end) { // excluye el día inicial
+const ms = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()) -
+Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
+return Math.round(ms / 86400000);
+}
+function diffDaysInclusive(start, end) { // incluye ambos extremos (p/ abonos)
+const base = diffDaysExclusiveStart(start, end);
+return base >= 0 ? base + 1 : 0;
+}
+function addYMD(date, years=0, months=0, days=0) {
+let d = addMonthsUTC(date, years * 12 + months);
+d = addDaysUTC(d, days);
+return d;
+}
+// Convierte una duración en días a Y/M/D exactos según calendario, anclado en startDate
+function daysToYMDfrom(startDate, totalDays) {
+if (totalDays <= 0) return { years: 0, months: 0, days: 0 };
+const end = addDaysUTC(startDate, totalDays);
+let Y = end.getUTCFullYear() - startDate.getUTCFullYear();
+let M = end.getUTCMonth() - startDate.getUTCMonth();
+let D = end.getUTCDate() - startDate.getUTCDate();
+if (D < 0) {
+M -= 1;
+const prevMonthLast = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), 0)).getUTCDate();
+D += prevMonthLast;
+}
+if (M < 0) { Y -= 1; M += 12; }
+return { years: Y, months: M, days: D };
+}
+// Helper presentación "X años, Y meses, Z días"
+function humanizeYMD(ymd) {
+const parts = [];
+if (ymd.years) parts.push(ymd.years + ' año' + (ymd.years !== 1 ? 's' : ''));
+if (ymd.months) parts.push(ymd.months + ' mes' + (ymd.months !== 1 ? 'es' : ''));
+if (ymd.days) parts.push(ymd.days + ' día' + (ymd.days !== 1 ? 's' : ''));
+return parts.length ? parts.join(', ') : '0 días';
+}
+// =============================================
+//  GOOGLE SHEETS – CONFIG
+// =============================================
+const CLIENT_ID = '110247006601-hvbpfqcd0v79tgmiqr9ntc853t9a1vu3.apps.googleusercontent.com';
+const SPREADSHEET_ID = '1ASWYg5AZbm1AD5h9cQjxZK00Q8RebiuQo3daBYJnj64';
+const DISCOVERY_DOC = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+let tokenClient; let gapiInited = false; let gisInited = false; let lastResults = null;
+function gapiLoaded(){ gapi.load('client', initializeGapiClient); }
+async function initializeGapiClient(){ await gapi.client.init({ discoveryDocs:[DISCOVERY_DOC] }); gapiInited = true; maybeEnableButtons(); }
+function gisLoaded(){ tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: '' }); gisInited = true; maybeEnableButtons(); }
+function maybeEnableButtons(){ if (gapiInited && gisInited) document.getElementById('btnGuardarSheets').disabled = false; }
+function handleAuthClick(){
+tokenClient.callback = async (resp) => {
+if (resp.error !== undefined) throw(resp);
+document.getElementById('auth-status').innerText = '¡Autorizado! Listo para guardar.';
+await guardarEnSheets();
+};
+if (gapi.client.getToken() === null) tokenClient.requestAccessToken({ prompt: 'consent' });
+else tokenClient.requestAccessToken({ prompt: '' });
+}
+function guardarEnSheets(){
+if (!lastResults) { document.getElementById('auth-status').innerText = 'Error: Primero debe calcular una condena.'; return; }
+if (gapi.client.getToken() === null) { handleAuthClick(); return; }
+const beneficiosTexto = lastResults.beneficios.map(b => `${b.tipo}: ${b.fecha}`).join('; ') || 'No aplica';
+const datosFila = [
+lastResults.nombreCondenado,
+lastResults.delito,
+lastResults.fechaHecho,
+lastResults.reincidente ? 'Sí' : 'No',
+lastResults.tipoCondena === 'temporal' ? 'Prisión efectiva temporal' : 'Prisión efectiva perpetua',
+lastResults.penaTotalHuman,
+`${lastResults.diasDetencionPreventiva} días`,
+lastResults.penaEfectivaHuman,
+lastResults.fechaFinCondena,
+beneficiosTexto,
+new Date().toLocaleString('es-AR')
+];
+const request = { spreadsheetId: SPREADSHEET_ID, range: "'Hoja 1'!A1", valueInputOption:'USER_ENTERED', resource:{ values:[datosFila] } };
+document.getElementById('auth-status').innerText = 'Guardando...';
+gapi.client.sheets.spreadsheets.values.append(request).then(() => {
+document.getElementById('auth-status').innerText = '¡Datos guardados con éxito!';
+}, (reason) => {
+console.error('Error al guardar:', reason);
+let msg = 'Error al guardar. Revise la consola para más detalles.';
+if (reason.result && reason.result.error) {
+const e = reason.result.error;
+if (e.status === 'NOT_FOUND') msg = "Error: No se encontró la hoja de cálculo. Verifique el 'SPREADSHEET_ID'.";
+else if (e.status === 'PERMISSION_DENIED') msg = 'Error: Permiso denegado. Verifique permisos.';
+else if (e.message && e.message.includes('Unable to parse range')) msg = "Error: Pestaña 'Hoja 1' inexistente.";
+else msg = `Error: ${e.message}`;
+}
+document.getElementById('auth-status').innerText = msg;
+});
+}
+// =============================================
+//  UI: MODAL CONFIRMACIÓN
+// =============================================
+function mostrarConfirmacion(message, callback){
+document.getElementById('modalMessage').textContent = message;
+const modal = document.getElementById('confirmationModal');
+modal.classList.add('visible');
+const confirmBtn = document.getElementById('confirmBtn');
+const newConfirm = confirmBtn.cloneNode(true);
+confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+newConfirm.addEventListener('click', () => { callback(); ocultarConfirmacion(); });
+}
+function ocultarConfirmacion(){ document.getElementById('confirmationModal').classList.remove('visible'); }
+// =============================================
+//  LÓGICA – FORMULARIO Y CÁLCULOS
+// =============================================
+document.addEventListener('DOMContentLoaded', () => {
+document.getElementById('condenaForm').addEventListener('submit', calcularCondena);
+document.getElementById('tipoCondena').addEventListener('change', togglePenaTemporal);
+document.addEventListener('click', (e) => {
+if (e.target && e.target.id === 'btnPDF') generarPDF();
+if (e.target && e.target.id === 'btnGuardarSheets') mostrarConfirmacion('¿Está seguro de que desea guardar estos datos en Google Sheets?', guardarEnSheets);
+});
+document.getElementById('cancelBtn').addEventListener('click', ocultarConfirmacion);
+document.getElementById('confirmationModal').addEventListener('click', function(e){ if (e.target === this) ocultarConfirmacion(); });
+});
+function togglePenaTemporal(){
+const tipo = document.getElementById('tipoCondena').value;
+const div = document.getElementById('penaTemporal');
+if (tipo === 'temporal') {
+div.classList.remove('hidden');
+document.getElementById('penaAnos').required = true;
+document.getElementById('penaMeses').required = true;
+document.getElementById('penaDias').required = true;
+} else {
+div.classList.add('hidden');
+document.getElementById('penaAnos').required = false;
+document.getElementById('penaMeses').required = false;
+document.getElementById('penaDias').required = false;
+}
+}
+function agregarPeriodo(){
+const c = document.getElementById('detencionesContainer');
+const el = document.createElement('div');
+el.className = 'periodo-detencion';
+el.innerHTML = `
+<input type="date" placeholder="Fecha inicio" class="fechaInicio" required />
+<input type="date" placeholder="Fecha fin" class="fechaFin" required />
+<button type="button" class="btn btn-danger" onclick="eliminarPeriodo(this)">Eliminar</button>
+`;
+c.appendChild(el);
+}
+function eliminarPeriodo(btn){ btn.parentElement.remove(); }
+function calcularCondena(e){
+e.preventDefault();
+lastResults = null;
+const nombreCondenado = document.getElementById('nombreCondenado').value.trim();
+const delito = document.getElementById('delito').value.trim();
+const tipoCondena = document.getElementById('tipoCondena').value;
+const fechaInicioCondenaStr = document.getElementById('fechaInicioCondena').value;
+const fechaHechoStr = document.getElementById('fechaHecho').value;
+const tipoDelito = document.getElementById('tipoDelito').value;
+const reincidenteVal = document.getElementById('reincidente').value;
+const resultadosDiv = document.getElementById('resultados');
+const container = document.getElementById('resultadosContainer');
+if (!fechaInicioCondenaStr || !fechaHechoStr) {
+container.innerHTML = `<div class="resultado-item error-item"><strong>Error:</strong> Por favor, complete todas las fechas requeridas en el formulario.</div>`;
+resultadosDiv.classList.remove('hidden'); resultadosDiv.scrollIntoView({ behavior:'smooth' }); return;
+}
+const fechaInicioCondena = toUTCDateFromInput(fechaInicioCondenaStr);
+const fechaHecho = toUTCDateFromInput(fechaHechoStr);
+let penaTotalDias = 0, penaEfectivaDias = 0, fechaFinCondena = null, diasDetencionPreventiva = 0;
+if (tipoCondena === 'temporal') {
+const penaAnos = parseInt(document.getElementById('penaAnos').value) || 0;
+const penaMeses = parseInt(document.getElementById('penaMeses').value) || 0;
+const penaDias = parseInt(document.getElementById('penaDias').value) || 0;
+// Fin de pena bruta por calendario real (Y/M/D)
+let fechaFinPenaBruta = addYMD(fechaInicioCondena, penaAnos, penaMeses, penaDias);
+// Abonos (detenciones preventivas) – inclusivo ambos extremos
+document.querySelectorAll('.periodo-detencion').forEach(p => {
+const i = p.querySelector('.fechaInicio').value;
+const f = p.querySelector('.fechaFin').value;
+if (i && f) {
+const ini = toUTCDateFromInput(i);
+const fin = toUTCDateFromInput(f);
+if (ini <= fin) diasDetencionPreventiva += diffDaysInclusive(ini, fin);
+}
+});
+// Pena total y efectiva (dies a quo non computatur)
+penaTotalDias = diffDaysExclusiveStart(fechaInicioCondena, fechaFinPenaBruta);
+fechaFinCondena = addDaysUTC(fechaFinPenaBruta, -diasDetencionPreventiva);
+penaEfectivaDias = Math.max(0, diffDaysExclusiveStart(fechaInicioCondena, fechaFinCondena));
+}
+const fechaLimite = parseYMD('2017-07-28');
+const esPosterior = fechaHecho.getTime() >= fechaLimite.getTime();
+const beneficios = []; const alertas = [];
+if (tipoCondena === 'perpetua') {
+alertas.push({ mensaje: 'Condena perpetua: No corresponde el acceso a beneficios', tipo: 'error' });
+} else if (tipoDelito === '56bis' && esPosterior) {
+const fechaRegimenPrep = addYMD(fechaFinCondena, -2, 0, 0); // -2 años
+beneficios.push({ tipo: 'Régimen Preparatorio de Libertad (Art. 56 quater)', fecha: formatDMY(fechaRegimenPrep) });
+alertas.push({ mensaje: 'No puede acceder a otros beneficios por ser delito del Art. 56 bis con hecho posterior al 28/07/2017', tipo: 'alerta' });
+} else if (tipoCondena === 'temporal') {
+if (!esPosterior) {
+// Salidas transitorias: mitad de pena efectiva (redondeo hacia arriba)
+const mitad = Math.ceil(penaEfectivaDias / 2);
+const fechaST = addDaysUTC(fechaInicioCondena, mitad);
+beneficios.push({ tipo: 'Salidas Transitorias', fecha: formatDMY(fechaST) });
+} else {
+// Período de Prueba: mitad de pena total – abonos + 2 días
+const mitadTotal = Math.ceil(penaTotalDias / 2);
+const fechaMitadBruta = addDaysUTC(fechaInicioCondena, mitadTotal);
+let fechaPeriodoPrueba = addDaysUTC(fechaMitadBruta, -diasDetencionPreventiva);
+fechaPeriodoPrueba = addDaysUTC(fechaPeriodoPrueba, 2);
+beneficios.push({ tipo: 'Período de Prueba', fecha: formatDMY(fechaPeriodoPrueba) });
+// Salidas transitorias luego del período de prueba
+let fechaST = new Date(fechaPeriodoPrueba);
+if (penaTotalDias > 3650) fechaST = addYMD(fechaST, 1, 0, 0);
+else if (penaTotalDias > 1825) fechaST = addYMD(fechaST, 0, 6, 0);
+beneficios.push({ tipo: 'Salidas Transitorias', fecha: formatDMY(fechaST) });
+}
+// Libertad condicional
+let tieneLibertadCondicional = false;
+if (reincidenteVal === 'no') {
+    let fechaLC;
+    if (penaTotalDias > 1095) { // Penas mayores a 3 años
+        const needed = Math.ceil((2 * penaTotalDias) / 3);
+        const base = addDaysUTC(fechaInicioCondena, needed);
+        fechaLC = addDaysUTC(base, -diasDetencionPreventiva);
+    } else { // Penas de 3 años o menos (penaTotalDias <= 1095)
+        // LÓGICA MODIFICADA: Se aplica el descuento de abonos
+        // 1. Se suman 8 meses a la fecha de inicio.
+        const baseOchoMeses = addYMD(fechaInicioCondena, 0, 8, 0);
+        // 2. Se restan los días de detención preventiva (abonos).
+        fechaLC = addDaysUTC(baseOchoMeses, -diasDetencionPreventiva);
     }
-
-    function toUTCDateFromInput(value) { // input type=date -> Date UTC
-      return new Date(value + 'T00:00:00Z');
-    }
-
-    function formatDMY(date) { // Date -> 'DD/MM/YYYY'
-      if (!date || !(date instanceof Date) || isNaN(date)) return 'Fecha inválida';
-      const d = String(date.getUTCDate()).padStart(2, '0');
-      const m = String(date.getUTCMonth() + 1).padStart(2, '0');
-      const y = date.getUTCFullYear();
-      return `${d}/${m}/${y}`;
-    }
-
-    function addDaysUTC(date, days) {
-      const d = new Date(date.getTime());
-      d.setUTCDate(d.getUTCDate() + days);
-      return d;
-    }
-
-    function addMonthsUTC(date, months) { // respeta fin de mes y bisiestos
-      const Y = date.getUTCFullYear();
-      const M = date.getUTCMonth();
-      const D = date.getUTCDate();
-      const tM = M + months;
-      const tY = Y + Math.floor(tM / 12);
-      const mIdx = ((tM % 12) + 12) % 12;
-      const lastDay = new Date(Date.UTC(tY, mIdx + 1, 0)).getUTCDate();
-      const day = Math.min(D, lastDay);
-      return new Date(Date.UTC(tY, mIdx, day));
-    }
-
-    function diffDaysExclusiveStart(start, end) { // excluye el día inicial
-      const ms = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()) -
-                 Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
-      return Math.round(ms / 86400000);
-    }
-
-    function diffDaysInclusive(start, end) { // incluye ambos extremos (p/ abonos)
-      const base = diffDaysExclusiveStart(start, end);
-      return base >= 0 ? base + 1 : 0;
-    }
-
-    function addYMD(date, years=0, months=0, days=0) {
-      let d = addMonthsUTC(date, years * 12 + months);
-      d = addDaysUTC(d, days);
-      return d;
-    }
-
-    // Convierte una duración en días a Y/M/D exactos según calendario, anclado en startDate
-    function daysToYMDfrom(startDate, totalDays) {
-      if (totalDays <= 0) return { years: 0, months: 0, days: 0 };
-      const end = addDaysUTC(startDate, totalDays);
-      let Y = end.getUTCFullYear() - startDate.getUTCFullYear();
-      let M = end.getUTCMonth() - startDate.getUTCMonth();
-      let D = end.getUTCDate() - startDate.getUTCDate();
-      if (D < 0) {
-        M -= 1;
-        const prevMonthLast = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), 0)).getUTCDate();
-        D += prevMonthLast;
-      }
-      if (M < 0) { Y -= 1; M += 12; }
-      return { years: Y, months: M, days: D };
-    }
-
-    // Helper presentación "X años, Y meses, Z días"
-    function humanizeYMD(ymd) {
-      const parts = [];
-      if (ymd.years) parts.push(ymd.years + ' año' + (ymd.years !== 1 ? 's' : ''));
-      if (ymd.months) parts.push(ymd.months + ' mes' + (ymd.months !== 1 ? 'es' : ''));
-      if (ymd.days) parts.push(ymd.days + ' día' + (ymd.days !== 1 ? 's' : ''));
-      return parts.length ? parts.join(', ') : '0 días';
-    }
-
-    // =============================================
-    //  GOOGLE SHEETS – CONFIG
-    // =============================================
-    const CLIENT_ID = '110247006601-hvbpfqcd0v79tgmiqr9ntc853t9a1vu3.apps.googleusercontent.com';
-    const SPREADSHEET_ID = '1ASWYg5AZbm1AD5h9cQjxZK00Q8RebiuQo3daBYJnj64';
-    const DISCOVERY_DOC = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
-    const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
-
-    let tokenClient; let gapiInited = false; let gisInited = false; let lastResults = null;
-
-    function gapiLoaded(){ gapi.load('client', initializeGapiClient); }
-    async function initializeGapiClient(){ await gapi.client.init({ discoveryDocs:[DISCOVERY_DOC] }); gapiInited = true; maybeEnableButtons(); }
-    function gisLoaded(){ tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: '' }); gisInited = true; maybeEnableButtons(); }
-    function maybeEnableButtons(){ if (gapiInited && gisInited) document.getElementById('btnGuardarSheets').disabled = false; }
-
-    function handleAuthClick(){
-      tokenClient.callback = async (resp) => {
-        if (resp.error !== undefined) throw(resp);
-        document.getElementById('auth-status').innerText = '¡Autorizado! Listo para guardar.';
-        await guardarEnSheets();
-      };
-      if (gapi.client.getToken() === null) tokenClient.requestAccessToken({ prompt: 'consent' });
-      else tokenClient.requestAccessToken({ prompt: '' });
-    }
-
-    function guardarEnSheets(){
-      if (!lastResults) { document.getElementById('auth-status').innerText = 'Error: Primero debe calcular una condena.'; return; }
-      if (gapi.client.getToken() === null) { handleAuthClick(); return; }
-
-      const beneficiosTexto = lastResults.beneficios.map(b => `${b.tipo}: ${b.fecha}`).join('; ') || 'No aplica';
-
-      const datosFila = [
-        lastResults.nombreCondenado,
-        lastResults.delito,
-        lastResults.fechaHecho,
-        lastResults.reincidente ? 'Sí' : 'No',
-        lastResults.tipoCondena === 'temporal' ? 'Prisión efectiva temporal' : 'Prisión efectiva perpetua',
-        lastResults.penaTotalHuman,
-        `${lastResults.diasDetencionPreventiva} días`,
-        lastResults.penaEfectivaHuman,
-        lastResults.fechaFinCondena,
-        beneficiosTexto,
-        new Date().toLocaleString('es-AR')
-      ];
-
-      const request = { spreadsheetId: SPREADSHEET_ID, range: "'Hoja 1'!A1", valueInputOption:'USER_ENTERED', resource:{ values:[datosFila] } };
-      document.getElementById('auth-status').innerText = 'Guardando...';
-      gapi.client.sheets.spreadsheets.values.append(request).then(() => {
-        document.getElementById('auth-status').innerText = '¡Datos guardados con éxito!';
-      }, (reason) => {
-        console.error('Error al guardar:', reason);
-        let msg = 'Error al guardar. Revise la consola para más detalles.';
-        if (reason.result && reason.result.error) {
-          const e = reason.result.error;
-          if (e.status === 'NOT_FOUND') msg = "Error: No se encontró la hoja de cálculo. Verifique el 'SPREADSHEET_ID'.";
-          else if (e.status === 'PERMISSION_DENIED') msg = 'Error: Permiso denegado. Verifique permisos.';
-          else if (e.message && e.message.includes('Unable to parse range')) msg = "Error: Pestaña 'Hoja 1' inexistente.";
-          else msg = `Error: ${e.message}`;
-        }
-        document.getElementById('auth-status').innerText = msg;
-      });
-    }
-
-    // =============================================
-    //  UI: MODAL CONFIRMACIÓN
-    // =============================================
-    function mostrarConfirmacion(message, callback){
-      document.getElementById('modalMessage').textContent = message;
-      const modal = document.getElementById('confirmationModal');
-      modal.classList.add('visible');
-      const confirmBtn = document.getElementById('confirmBtn');
-      const newConfirm = confirmBtn.cloneNode(true);
-      confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
-      newConfirm.addEventListener('click', () => { callback(); ocultarConfirmacion(); });
-    }
-    function ocultarConfirmacion(){ document.getElementById('confirmationModal').classList.remove('visible'); }
-
-    // =============================================
-    //  LÓGICA – FORMULARIO Y CÁLCULOS
-    // =============================================
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('condenaForm').addEventListener('submit', calcularCondena);
-      document.getElementById('tipoCondena').addEventListener('change', togglePenaTemporal);
-      document.addEventListener('click', (e) => {
-        if (e.target && e.target.id === 'btnPDF') generarPDF();
-        if (e.target && e.target.id === 'btnGuardarSheets') mostrarConfirmacion('¿Está seguro de que desea guardar estos datos en Google Sheets?', guardarEnSheets);
-      });
-      document.getElementById('cancelBtn').addEventListener('click', ocultarConfirmacion);
-      document.getElementById('confirmationModal').addEventListener('click', function(e){ if (e.target === this) ocultarConfirmacion(); });
-    });
-
-    function togglePenaTemporal(){
-      const tipo = document.getElementById('tipoCondena').value;
-      const div = document.getElementById('penaTemporal');
-      if (tipo === 'temporal') {
-        div.classList.remove('hidden');
-        document.getElementById('penaAnos').required = true;
-        document.getElementById('penaMeses').required = true;
-        document.getElementById('penaDias').required = true;
-      } else {
-        div.classList.add('hidden');
-        document.getElementById('penaAnos').required = false;
-        document.getElementById('penaMeses').required = false;
-        document.getElementById('penaDias').required = false;
-      }
-    }
-
-    function agregarPeriodo(){
-      const c = document.getElementById('detencionesContainer');
-      const el = document.createElement('div');
-      el.className = 'periodo-detencion';
-      el.innerHTML = `
-        <input type="date" placeholder="Fecha inicio" class="fechaInicio" required />
-        <input type="date" placeholder="Fecha fin" class="fechaFin" required />
-        <button type="button" class="btn btn-danger" onclick="eliminarPeriodo(this)">Eliminar</button>
-      `;
-      c.appendChild(el);
-    }
-    function eliminarPeriodo(btn){ btn.parentElement.remove(); }
-
-    function calcularCondena(e){
-      e.preventDefault();
-      lastResults = null;
-
-      const nombreCondenado = document.getElementById('nombreCondenado').value.trim();
-      const delito = document.getElementById('delito').value.trim();
-      const tipoCondena = document.getElementById('tipoCondena').value;
-      const fechaInicioCondenaStr = document.getElementById('fechaInicioCondena').value;
-      const fechaHechoStr = document.getElementById('fechaHecho').value;
-      const tipoDelito = document.getElementById('tipoDelito').value;
-      const reincidenteVal = document.getElementById('reincidente').value;
-
-      const resultadosDiv = document.getElementById('resultados');
-      const container = document.getElementById('resultadosContainer');
-
-      if (!fechaInicioCondenaStr || !fechaHechoStr) {
-        container.innerHTML = `<div class="resultado-item error-item"><strong>Error:</strong> Por favor, complete todas las fechas requeridas en el formulario.</div>`;
-        resultadosDiv.classList.remove('hidden'); resultadosDiv.scrollIntoView({ behavior:'smooth' }); return;
-      }
-
-      const fechaInicioCondena = toUTCDateFromInput(fechaInicioCondenaStr);
-      const fechaHecho = toUTCDateFromInput(fechaHechoStr);
-
-      let penaTotalDias = 0, penaEfectivaDias = 0, fechaFinCondena = null, diasDetencionPreventiva = 0;
-
-      if (tipoCondena === 'temporal') {
-        const penaAnos = parseInt(document.getElementById('penaAnos').value) || 0;
-        const penaMeses = parseInt(document.getElementById('penaMeses').value) || 0;
-        const penaDias = parseInt(document.getElementById('penaDias').value) || 0;
-
-        // Fin de pena bruta por calendario real (Y/M/D)
-        let fechaFinPenaBruta = addYMD(fechaInicioCondena, penaAnos, penaMeses, penaDias);
-
-        // Abonos (detenciones preventivas) – inclusivo ambos extremos
-        document.querySelectorAll('.periodo-detencion').forEach(p => {
-          const i = p.querySelector('.fechaInicio').value;
-          const f = p.querySelector('.fechaFin').value;
-          if (i && f) {
-            const ini = toUTCDateFromInput(i);
-            const fin = toUTCDateFromInput(f);
-            if (ini <= fin) diasDetencionPreventiva += diffDaysInclusive(ini, fin);
-          }
-        });
-
-        // Pena total y efectiva (dies a quo non computatur)
-        penaTotalDias = diffDaysExclusiveStart(fechaInicioCondena, fechaFinPenaBruta);
-        fechaFinCondena = addDaysUTC(fechaFinPenaBruta, -diasDetencionPreventiva);
-        penaEfectivaDias = Math.max(0, diffDaysExclusiveStart(fechaInicioCondena, fechaFinCondena));
-      }
-
-      const fechaLimite = parseYMD('2017-07-28');
-      const esPosterior = fechaHecho.getTime() >= fechaLimite.getTime();
-
-      const beneficios = []; const alertas = [];
-
-      if (tipoCondena === 'perpetua') {
-        alertas.push({ mensaje: 'Condena perpetua: No corresponde el acceso a beneficios', tipo: 'error' });
-      } else if (tipoDelito === '56bis' && esPosterior) {
-        const fechaRegimenPrep = addYMD(fechaFinCondena, -2, 0, 0); // -2 años
-        beneficios.push({ tipo: 'Régimen Preparatorio de Libertad (Art. 56 quater)', fecha: formatDMY(fechaRegimenPrep) });
-        alertas.push({ mensaje: 'No puede acceder a otros beneficios por ser delito del Art. 56 bis con hecho posterior al 28/07/2017', tipo: 'alerta' });
-      } else if (tipoCondena === 'temporal') {
-        if (!esPosterior) {
-          // Salidas transitorias: mitad de pena efectiva (redondeo hacia arriba)
-          const mitad = Math.ceil(penaEfectivaDias / 2);
-          const fechaST = addDaysUTC(fechaInicioCondena, mitad);
-          beneficios.push({ tipo: 'Salidas Transitorias', fecha: formatDMY(fechaST) });
-        } else {
-          // Período de Prueba: mitad de pena total – abonos + 2 días
-          const mitadTotal = Math.ceil(penaTotalDias / 2);
-          const fechaMitadBruta = addDaysUTC(fechaInicioCondena, mitadTotal);
-          let fechaPeriodoPrueba = addDaysUTC(fechaMitadBruta, -diasDetencionPreventiva);
-          fechaPeriodoPrueba = addDaysUTC(fechaPeriodoPrueba, 2);
-          beneficios.push({ tipo: 'Período de Prueba', fecha: formatDMY(fechaPeriodoPrueba) });
-
-          // Salidas transitorias luego del período de prueba
-          let fechaST = new Date(fechaPeriodoPrueba);
-          if (penaTotalDias > 3650) fechaST = addYMD(fechaST, 1, 0, 0);
-          else if (penaTotalDias > 1825) fechaST = addYMD(fechaST, 0, 6, 0);
-          beneficios.push({ tipo: 'Salidas Transitorias', fecha: formatDMY(fechaST) });
-        }
-
-        // Libertad condicional
-        let tieneLibertadCondicional = false;
-        if (reincidenteVal === 'no') {
-          let fechaLC;
-          if (penaTotalDias > 1095) { // > 3 años
-            const needed = Math.ceil((2 * penaTotalDias) / 3); // redondeo hacia arriba
-            const base = addDaysUTC(fechaInicioCondena, needed);
-            fechaLC = addDaysUTC(base, -diasDetencionPreventiva);
-          } else {
-            fechaLC = addYMD(fechaInicioCondena, 0, 8, 0); // 8 meses
-          }
-          fechaLC = addDaysUTC(fechaLC, 2); // +2 días, conforme práctica previa del usuario
-          beneficios.push({ tipo: 'Libertad Condicional', fecha: formatDMY(fechaLC) });
-          tieneLibertadCondicional = true;
-        } else {
-          alertas.push({ mensaje: 'No puede acceder a libertad condicional por ser reincidente (Art. 50 CP)', tipo: 'error' });
-        }
-
-        // Libertad Asistida si no hay LC
-        if (!tieneLibertadCondicional) {
-          const mesesAntes = esPosterior ? 3 : 6;
-          const fechaLA = addYMD(fechaFinCondena, 0, -mesesAntes, 0);
-          beneficios.push({ tipo: 'Libertad Asistida', fecha: formatDMY(fechaLA) });
-        }
-      }
-
-      // Preparar resultados
-      const penaTotalHuman = humanizeYMD(daysToYMDfrom(fechaInicioCondena, penaTotalDias));
-      const penaEfectivaHuman = humanizeYMD(daysToYMDfrom(fechaInicioCondena, penaEfectivaDias));
-
-      lastResults = {
-        nombreCondenado,
-        delito,
-        fechaHecho: formatDMY(fechaHecho),
-        reincidente: reincidenteVal === 'si',
-        tipoCondena,
-        diasDetencionPreventiva,
-        penaTotalDias,
-        penaEfectivaDias,
-        penaTotalHuman,
-        penaEfectivaHuman,
-        fechaFinCondena: fechaFinCondena ? formatDMY(fechaFinCondena) : 'No aplica',
-        beneficios,
-        alertas
-      };
-
-      mostrarResultados(lastResults);
-    }
-
-    function mostrarResultados(r) {
-      const resultadosDiv = document.getElementById('resultados');
-      const container = document.getElementById('resultadosContainer');
-      let html = `
-        <div class="resultado-item"><strong>Nombre del condenado:</strong> ${r.nombreCondenado}</div>
-        <div class="resultado-item"><strong>Delito:</strong> ${r.delito}</div>
-        <div class="resultado-item"><strong>Fecha del hecho:</strong> ${r.fechaHecho}</div>
-        <div class="resultado-item"><strong>Reincidente:</strong> ${r.reincidente ? 'Sí' : 'No'}</div>
-        <div class="resultado-item"><strong>Tipo de condena:</strong> ${r.tipoCondena === 'temporal' ? 'Prisión efectiva temporal' : 'Prisión efectiva perpetua'}</div>
-      `;
-
-      if (r.tipoCondena === 'temporal') {
-        html += `
-          <div class="resultado-item"><strong>Pena total impuesta:</strong> ${r.penaTotalHuman}</div>
-          <div class="resultado-item"><strong>Días de detención preventiva:</strong> ${r.diasDetencionPreventiva} días</div>
-          <div class="resultado-item"><strong>Pena efectiva a cumplir:</strong> ${r.penaEfectivaHuman}</div>
-          <div class="resultado-item"><strong>Fecha de fin de condena:</strong> ${r.fechaFinCondena}</div>
-        `;
-      }
-
-      if (r.beneficios.length > 0) {
-        html += '<h3>Beneficios Posibles:</h3>';
-        const order = { 'Período de Prueba':1, 'Salidas Transitorias':2, 'Libertad Condicional':3, 'Libertad Asistida':4, 'Régimen Preparatorio de Libertad (Art. 56 quater)':5 };
-        r.beneficios.sort((a,b)=> (order[a.tipo]||99) - (order[b.tipo]||99));
-        r.beneficios.forEach(b => { html += `<div class="resultado-item beneficio-item"><strong>${b.tipo}:</strong> ${b.fecha}</div>`; });
-      }
-
-      if (r.alertas.length > 0) {
-        html += '<h3>Información Importante:</h3>';
-        r.alertas.forEach(a => {
-          const clase = a.tipo === 'error' ? 'error-item' : 'alerta-item';
-          html += `<div class="resultado-item ${clase}">${a.mensaje}</div>`;
-        });
-      }
-
-      container.innerHTML = html;
-      resultadosDiv.classList.remove('hidden');
-      resultadosDiv.scrollIntoView({ behavior:'smooth' });
-    }
-
-    function generarPDF(){
-      try {
-        const contenido = document.getElementById('resultadosContainer').innerHTML;
-        if (!contenido) { alert('No hay resultados para generar el PDF'); return; }
-        const ventana = window.open('', '_blank');
-        if (!ventana) { alert('Permita ventanas emergentes para este sitio.'); return; }
-        ventana.document.write(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <title>Informe de Cómputo de Condena</title>
-            <style>
-              body{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:20px; font-size:14px; color:#333;}
-              h1{color:#003366; text-align:center; font-size:24px; margin-bottom:10px; text-shadow:1px 1px 2px rgba(0,0,0,.2);}
-              h2{color:#003366; font-size:18px; margin:20px 0 15px; border-bottom:1px solid #0066cc; padding-bottom:5px; text-align:center;}
-              .resultado-item{margin-bottom:15px; padding:15px; border:1px solid #ddd; border-radius:5px; background:white; box-shadow:0 2px 4px rgba(0,0,0,.1);} 
-              .beneficio-item{background:#d4edda; border-left:4px solid #27ae60;} 
-              .alerta-item{background:#fff3cd; border-left:4px solid #ffc107;} 
-              .error-item{background:#f8d7da; border-left:4px solid #dc3545;} 
-              strong{color:#003366; font-weight:bold;}
-              .footer{margin-top:40px; font-size:12px; color:#666; border-top:1px solid #ddd; padding-top:10px; display:flex; justify-content:space-between; align-items:center;}
-              .print-btn{display:block; margin:20px auto; padding:10px 20px; background:#0066cc; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px; font-weight:bold;}
-              @media print { .print-btn{display:none;} }
-            </style>
-          </head>
-          <body>
-            <h1>Informe de Cómputo de Condena</h1>
-            ${contenido}
-            <div class="footer"><p style="margin:0;">Generado el ${new Date().toLocaleDateString('es-AR')}</p><p style="margin:0;">Create by RBM 2025</p></div>
-            <button class="print-btn" onclick="window.print()">Imprimir Documento</button>
-          </body>
-          </html>
-        `);
-        ventana.document.close(); ventana.focus();
-      } catch (err) { console.error('Error al generar PDF:', err); alert('Ocurrió un error al generar el PDF.'); }
-    }
-  </script>
+    // 3. Se mantienen los +2 días de ajuste que ya se aplicaban para ambos casos.
+    fechaLC = addDaysUTC(fechaLC, 2);
+    beneficios.push({ tipo: 'Libertad Condicional', fecha: formatDMY(fechaLC) });
+    tieneLibertadCondicional = true;
+} else {
+    alertas.push({ mensaje: 'No puede acceder a libertad condicional por ser reincidente (Art. 50 CP)', tipo: 'error' });
+}
+// Libertad Asistida si no hay LC
+if (!tieneLibertadCondicional) {
+const mesesAntes = esPosterior ? 3 : 6;
+const fechaLA = addYMD(fechaFinCondena, 0, -mesesAntes, 0);
+beneficios.push({ tipo: 'Libertad Asistida', fecha: formatDMY(fechaLA) });
+}
+}
+// Preparar resultados
+const penaTotalHuman = humanizeYMD(daysToYMDfrom(fechaInicioCondena, penaTotalDias));
+const penaEfectivaHuman = humanizeYMD(daysToYMDfrom(fechaInicioCondena, penaEfectivaDias));
+lastResults = {
+nombreCondenado,
+delito,
+fechaHecho: formatDMY(fechaHecho),
+reincidente: reincidenteVal === 'si',
+tipoCondena,
+diasDetencionPreventiva,
+penaTotalDias,
+penaEfectivaDias,
+penaTotalHuman,
+penaEfectivaHuman,
+fechaFinCondena: fechaFinCondena ? formatDMY(fechaFinCondena) : 'No aplica',
+beneficios,
+alertas
+};
+mostrarResultados(lastResults);
+}
+function mostrarResultados(r) {
+const resultadosDiv = document.getElementById('resultados');
+const container = document.getElementById('resultadosContainer');
+let html = `
+<div class="resultado-item"><strong>Nombre del condenado:</strong> ${r.nombreCondenado}</div>
+<div class="resultado-item"><strong>Delito:</strong> ${r.delito}</div>
+<div class="resultado-item"><strong>Fecha del hecho:</strong> ${r.fechaHecho}</div>
+<div class="resultado-item"><strong>Reincidente:</strong> ${r.reincidente ? 'Sí' : 'No'}</div>
+<div class="resultado-item"><strong>Tipo de condena:</strong> ${r.tipoCondena === 'temporal' ? 'Prisión efectiva temporal' : 'Prisión efectiva perpetua'}</div>
+`;
+if (r.tipoCondena === 'temporal') {
+html += `
+<div class="resultado-item"><strong>Pena total impuesta:</strong> ${r.penaTotalHuman}</div>
+<div class="resultado-item"><strong>Días de detención preventiva:</strong> ${r.diasDetencionPreventiva} días</div>
+<div class="resultado-item"><strong>Pena efectiva a cumplir:</strong> ${r.penaEfectivaHuman}</div>
+<div class="resultado-item"><strong>Fecha de fin de condena:</strong> ${r.fechaFinCondena}</div>
+`;
+}
+if (r.beneficios.length > 0) {
+html += '<h3>Beneficios Posibles:</h3>';
+const order = { 'Período de Prueba':1, 'Salidas Transitorias':2, 'Libertad Condicional':3, 'Libertad Asistida':4, 'Régimen Preparatorio de Libertad (Art. 56 quater)':5 };
+r.beneficios.sort((a,b)=> (order[a.tipo]||99) - (order[b.tipo]||99));
+r.beneficios.forEach(b => { html += `<div class="resultado-item beneficio-item"><strong>${b.tipo}:</strong> ${b.fecha}</div>`; });
+}
+if (r.alertas.length > 0) {
+html += '<h3>Información Importante:</h3>';
+r.alertas.forEach(a => {
+const clase = a.tipo === 'error' ? 'error-item' : 'alerta-item';
+html += `<div class="resultado-item ${clase}">${a.mensaje}</div>`;
+});
+}
+container.innerHTML = html;
+resultadosDiv.classList.remove('hidden');
+resultadosDiv.scrollIntoView({ behavior:'smooth' });
+}
+function generarPDF(){
+try {
+const contenido = document.getElementById('resultadosContainer').innerHTML;
+if (!contenido) { alert('No hay resultados para generar el PDF'); return; }
+const ventana = window.open('', '_blank');
+if (!ventana) { alert('Permita ventanas emergentes para este sitio.'); return; }
+ventana.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+<title>Informe de Cómputo de Condena</title>
+<style>
+body{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:20px; font-size:14px; color:#333;}
+h1{color:#003366; text-align:center; font-size:24px; margin-bottom:10px; text-shadow:1px 1px 2px rgba(0,0,0,.2);}
+h2{color:#003366; font-size:18px; margin:20px 0 15px; border-bottom:1px solid #0066cc; padding-bottom:5px; text-align:center;}
+.resultado-item{margin-bottom:15px; padding:15px; border:1px solid #ddd; border-radius:5px; background:white; box-shadow:0 2px 4px rgba(0,0,0,.1);}
+.beneficio-item{background:#d4edda; border-left:4px solid #27ae60;}
+.alerta-item{background:#fff3cd; border-left:4px solid #ffc107;}
+.error-item{background:#f8d7da; border-left:4px solid #dc3545;}
+strong{color:#003366; font-weight:bold;}
+.footer{margin-top:40px; font-size:12px; color:#666; border-top:1px solid #ddd; padding-top:10px; display:flex; justify-content:space-between; align-items:center;}
+.print-btn{display:block; margin:20px auto; padding:10px 20px; background:#0066cc; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px; font-weight:bold;}
+@media print { .print-btn{display:none;} }
+</style>
+</head>
+<body>
+<h1>Informe de Cómputo de Condena</h1>
+${contenido}
+<div class="footer"><p style="margin:0;">Generado el ${new Date().toLocaleDateString('es-AR')}</p><p style="margin:0;">Create by RBM 2025</p></div>
+<button class="print-btn" onclick="window.print()">Imprimir Documento</button>
+</body>
+</html>
+`);
+ventana.document.close(); ventana.focus();
+} catch (err) { console.error('Error al generar PDF:', err); alert('Ocurrió un error al generar el PDF.'); }
+}
+</script>
 </body>
 </html>
