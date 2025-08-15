@@ -198,10 +198,22 @@
                  Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
       return Math.round(ms / 86400000);
     }
-    function diffDaysInclusive(start, end) { // incluye ambos extremos (p/ abonos)
+    
+    /**
+     * Calcula la cantidad de días entre dos fechas, incluyendo tanto el día de inicio como el día de fin.
+     * Esta es la forma estándar de computar períodos de detención donde se cuentan ambos extremos.
+     * Ejemplo: del 5 de mayo al 6 de mayo son 2 días. La función `diffDaysExclusiveStart` daría 1, y al sumar 1 se obtiene el resultado correcto.
+     * @param {Date} start La fecha de inicio del período.
+     * @param {Date} end La fecha de fin del período.
+     * @returns {number} El número total de días.
+     */
+    function contarDiasInclusivo(start, end) {
+      // Calcula la diferencia de días sin contar el día inicial.
       const base = diffDaysExclusiveStart(start, end);
+      // Si el período es válido (fin no es anterior a inicio), se suma 1 para incluir el día inicial.
       return base >= 0 ? base + 1 : 0;
     }
+
     function addYMD(date, years=0, months=0, days=0) {
       let d = addMonthsUTC(date, years * 12 + months);
       d = addDaysUTC(d, days);
@@ -370,7 +382,7 @@
           if (i && f) {
             const ini = toUTCDateFromInput(i);
             const fin = toUTCDateFromInput(f);
-            if (ini <= fin) diasDetencionPreventiva += diffDaysInclusive(ini, fin);
+            if (ini <= fin) diasDetencionPreventiva += contarDiasInclusivo(ini, fin);
           }
         });
         // Pena total y efectiva (dies a quo non computatur)
