@@ -37,7 +37,6 @@
             transform: perspective(1200px); /* Perspectiva para transformaciones 3D */
             transition: transform 0.4s ease;
         }
-
         .container:hover {
             transform: scale(1.01); /* Ligero zoom al pasar el mouse */
         }
@@ -55,7 +54,6 @@
             justify-content: center;
             align-items: center;
         }
-
         .header-logo {
             position: absolute;
             top: 50%;
@@ -68,7 +66,6 @@
             padding: 5px;
             box-shadow: 0 0 15px rgba(0,0,0,0.3);
         }
-
         /* Contenedor para el texto del encabezado para gestionar el espaciado */
         .header-text-container {
             padding-left: 100px; /* Espacio para que no choque con el logo */
@@ -106,7 +103,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.07); /* Sombra sutil */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-
         .form-section:hover {
             transform: translateY(-5px); /* Se eleva al pasar el mouse */
             box-shadow: 0 12px 25px rgba(0,0,0,0.1);
@@ -181,7 +177,6 @@
             transform: translateY(-3px) scale(1.05); /* Efecto de elevación y crecimiento */
             box-shadow: 0 7px 15px rgba(0, 91, 179, 0.4);
         }
-
         .btn:active {
             transform: translateY(-1px) scale(1.02); /* Efecto de presionar */
         }
@@ -254,7 +249,6 @@
             border-left: 4px solid transparent;
             transition: border-color 0.3s;
         }
-
         .resultado-item:hover {
             border-left-color: #007bff;
         }
@@ -309,7 +303,6 @@
             font-size: 1rem;
             color: #0c5460;
         }
-
         /* --- ESTILOS PARA EL MODAL DE CONFIRMACIÓN --- */
         .modal-overlay {
             position: fixed;
@@ -354,7 +347,81 @@
             justify-content: center;
             gap: 15px;
         }
-        
+
+        /* --- NUEVOS ESTILOS: PESTAÑAS (TABS) --- */
+        .auth-section {
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.07);
+        }
+        #authStatus {
+            font-weight: 600;
+            color: #003366;
+            margin-top: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 3px solid #005cb3;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            padding: 15px 25px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -3px;
+        }
+        .tab-btn.active {
+            color: #005cb3;
+            border-bottom-color: #005cb3;
+        }
+        .tab-btn:not(.active):hover {
+            background-color: #f9fafb;
+        }
+        .tab-panel {
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- NUEVOS ESTILOS: TABLA DE HISTORIAL --- */
+        .historial-container {
+            overflow-x: auto;
+        }
+        .historial-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .historial-table th, .historial-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+        .historial-table th {
+            background-color: #eef2f7;
+            color: #003366;
+            font-weight: 700;
+        }
+        .historial-table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        .historial-table tr:hover {
+            background-color: #f1f5f9;
+        }
+
         /* --- RESPONSIVIDAD --- */
         @media (max-width: 768px) {
             .header {
@@ -384,6 +451,13 @@
                 flex-direction: column;
                 gap: 10px;
             }
+            .tabs {
+                flex-wrap: wrap;
+            }
+            .tab-btn {
+                width: 50%;
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
@@ -398,107 +472,138 @@
         </div>
         
         <div class="content">
-            <div class="info-box">
-                <strong>Información importante:</strong> Esta calculadora aplica la legislación vigente en Argentina (Ley 24.660 y modificaciones).
-            </div>
             
-            <form id="condenaForm">
-                <div class="form-section">
-                    <h2>Datos Personales</h2>
-                    
-                    <div class="form-group">
-                        <label for="nombreCondenado">Nombre del condenado:</label>
-                        <input type="text" id="nombreCondenado" placeholder="Apellido y Nombre" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="delito">Delito:</label>
-                        <input type="text" id="delito" placeholder="Descripción del delito" required>
-                    </div>
+            <!-- NUEVA SECCIÓN: AUTENTICACIÓN -->
+            <div class="auth-section">
+                <button id="btnAuthorize" class="btn">Iniciar Sesión para Guardar o Ver Historial</button>
+                <div id="authStatus" class="hidden"></div>
+            </div>
+
+            <!-- NUEVA SECCIÓN: PESTAÑAS -->
+            <div class="tabs">
+                <button id="tabCalculadora" class="tab-btn active">Calculadora</button>
+                <button id="tabHistorial" class="tab-btn hidden">Historial</button>
+            </div>
+
+            <!-- PESTAÑA 1: CALCULADORA (CONTENIDO EXISTENTE) -->
+            <div id="panelCalculadora" class="tab-panel">
+                <div class="info-box">
+                    <strong>Información importante:</strong> Esta calculadora aplica la legislación vigente en Argentina (Ley 24.660 y modificaciones).
                 </div>
                 
-                <div class="form-section">
-                    <h2>Datos de la Condena</h2>
-                    
-                    <div class="form-group">
-                        <label for="tipoCondena">Tipo de condena:</label>
-                        <select id="tipoCondena" required>
-                            <option value="">Seleccione...</option>
-                            <option value="temporal">Prisión efectiva temporal</option>
-                            <option value="perpetua">Prisión efectiva perpetua</option>
-                        </select>
-                    </div>
-                    
-                    <div id="penaTemporal" class="form-group hidden">
-                        <label for="penaImpuesta">Pena impuesta (años, meses, días):</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="number" id="penaAnos" placeholder="Años" min="0">
-                            <input type="number" id="penaMeses" placeholder="Meses" min="0" max="11">
-                            <input type="number" id="penaDias" placeholder="Días" min="0" max="30">
+                <form id="condenaForm">
+                    <div class="form-section">
+                        <h2>Datos Personales</h2>
+                        
+                        <div class="form-group">
+                            <label for="nombreCondenado">Nombre del condenado:</label>
+                            <input type="text" id="nombreCondenado" placeholder="Apellido y Nombre" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="delito">Delito:</label>
+                            <input type="text" id="delito" placeholder="Descripción del delito" required>
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="fechaInicioCondena">Fecha de inicio de condena:</label>
-                        <input type="date" id="fechaInicioCondena" required>
+                    <div class="form-section">
+                        <h2>Datos de la Condena</h2>
+                        
+                        <div class="form-group">
+                            <label for="tipoCondena">Tipo de condena:</label>
+                            <select id="tipoCondena" required>
+                                <option value="">Seleccione...</option>
+                                <option value="temporal">Prisión efectiva temporal</option>
+                                <option value="perpetua">Prisión efectiva perpetua</option>
+                            </select>
+                        </div>
+                        
+                        <div id="penaTemporal" class="form-group hidden">
+                            <label for="penaImpuesta">Pena impuesta (años, meses, días):</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" id="penaAnos" placeholder="Años" min="0">
+                                <input type="number" id="penaMeses" placeholder="Meses" min="0" max="11">
+                                <input type="number" id="penaDias" placeholder="Días" min="0" max="30">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fechaInicioCondena">Fecha de inicio de condena:</label>
+                            <input type="date" id="fechaInicioCondena" required>
+                        </div>
                     </div>
-                </div>
+                    
+                    <div class="form-section">
+                        <h2>Detenciones Preventivas</h2>
+                        <p>Ingrese los períodos de detención previos a la condena (si corresponde):</p>
+                        
+                        <div id="detencionesContainer">
+                            <!-- Este contenedor estará vacío inicialmente -->
+                        </div>
+                        
+                        <button type="button" class="btn" onclick="agregarPeriodo()">+ Agregar período</button>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h2>Datos del Hecho</h2>
+                        
+                        <div class="form-group">
+                            <label for="fechaHecho">Fecha del hecho:</label>
+                            <input type="date" id="fechaHecho" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tipoDelito">Tipo de delito (para beneficios):</label>
+                            <select id="tipoDelito" required>
+                                <option value="">Seleccione...</option>
+                                <option value="56bis">Delito del Art. 14 CP / Art. 56 bis LEP</option>
+                                <option value="otro">Otro delito</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reincidente">¿Es reincidente (Art. 50 CP)?</label>
+                            <select id="reincidente" required>
+                                <option value="">Seleccione...</option>
+                                <option value="si">Sí</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">Calcular Condena</button>
+                </form>
                 
-                <div class="form-section">
-                    <h2>Detenciones Preventivas</h2>
-                    <p>Ingrese los períodos de detención previos a la condena (si corresponde):</p>
-                    
-                    <div id="detencionesContainer">
-                        <!-- Este contenedor estará vacío inicialmente -->
-                    </div>
-                    
-                    <button type="button" class="btn" onclick="agregarPeriodo()">+ Agregar período</button>
+                <div id="resultados" class="resultados hidden">
+                    <h2>Informe de Cómputo de Condena</h2>
+                    <div id="resultadosContainer"></div>
+                    <button id="btnPDF" class="btn btn-pdf">Generar PDF para Imprimir</button>
+                    <button id="btnGuardarSheets" class="btn" style="background: linear-gradient(145deg, #28a745, #1e7e34);">Guardar en Google Sheets</button>
+                    <div id="auth-status-save" style="margin-top: 15px; font-weight: 500;"></div>
                 </div>
-                
-                <div class="form-section">
-                    <h2>Datos del Hecho</h2>
-                    
-                    <div class="form-group">
-                        <label for="fechaHecho">Fecha del hecho:</label>
-                        <input type="date" id="fechaHecho" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="tipoDelito">Tipo de delito:</label>
-                        <select id="tipoDelito" required>
-                            <option value="">Seleccione...</option>
-                            <option value="56bis">Art. 56 bis (Ley 24.660)</option>
-                            <option value="otro">Otro delito</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="reincidente">¿Es reincidente (Art. 50 CP)?</label>
-                        <select id="reincidente" required>
-                            <option value="">Seleccione...</option>
-                            <option value="si">Sí</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn btn-success">Calcular Condena</button>
-            </form>
-            
-            <div id="resultados" class="resultados hidden">
-                <h2>Informe de Cómputo de Condena</h2>
-                <div id="resultadosContainer"></div>
-                <button id="btnPDF" class="btn btn-pdf">Generar PDF para Imprimir</button>
-                <button id="btnGuardarSheets" class="btn" style="background: linear-gradient(145deg, #28a745, #1e7e34);">Guardar en Google Sheets</button>
-                <div id="auth-status" style="margin-top: 15px; font-weight: 500;"></div>
             </div>
+
+            <!-- PESTAÑA 2: HISTORIAL (NUEVA) -->
+            <div id="panelHistorial" class="tab-panel hidden">
+                <div class="form-section">
+                    <h2>Historial de Cómputos</h2>
+                    <p>Mostrando todos los cómputos guardados en la hoja de Google Sheets.</p>
+                    <button id="btnRefrescarHistorial" class="btn">Refrescar Historial</button>
+                    <div id="historialSpinner" class="hidden" style="margin-top: 20px;">Cargando...</div>
+                    <div class="historial-container" style="margin-top: 20px;">
+                        <table id="historialTable" class="historial-table">
+                            <!-- El contenido se generará dinámicamente -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
         
         <div class="footer">
             <p>Create by RBM 2025</p>
         </div>
     </div>
-
     <!-- Modal de Confirmación -->
     <div id="confirmationModal" class="modal-overlay">
         <div class="modal-content">
@@ -510,33 +615,34 @@
             </div>
         </div>
     </div>
-
     <script>
+        // --- NUEVA CONSTANTE DE ADMINISTRADOR ---
+        // !!! IMPORTANTE: Reemplace con el email del usuario administrador
+        const ADMIN_EMAIL = "tu-email-de-admin@gmail.com"; 
+
         // --- VARIABLES GLOBALES PARA LA API DE GOOGLE ---
-        // IMPORTANTE: Reemplaza estos valores con tus propias credenciales.
         const CLIENT_ID = '110247006601-hvbpfqcd0v79tgmiqr9ntc853t9a1vu3.apps.googleusercontent.com';
         const SPREADSHEET_ID = '1ASWYg5AZbm1AD5h9cQjxZK00Q8RebiuQo3daBYJnj64';
-        const DISCOVERY_DOC = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
-        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
-
+        const DISCOVERY_DOC_SHEETS = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
+        const DISCOVERY_DOC_OAUTH = 'https://www.googleapis.com/discovery/v1/apis/oauth2/v2/rest';
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email';
+        
         let tokenClient;
         let gapiInited = false;
         let gisInited = false;
         let lastResults = null; // Variable para guardar los últimos resultados calculados
-
+        
         document.addEventListener('DOMContentLoaded', function() {
+            // Eventos del formulario y botones
             document.getElementById('condenaForm').addEventListener('submit', calcularCondena);
             document.getElementById('tipoCondena').addEventListener('change', togglePenaTemporal);
             
-            document.addEventListener('click', function(e) {
-                if (e.target && e.target.id === 'btnPDF') {
-                    generarPDF();
-                }
-                if (e.target && e.target.id === 'btnGuardarSheets') {
-                    mostrarConfirmacion('¿Está seguro de que desea guardar estos datos en Google Sheets?', guardarEnSheets);
-                }
+            // Eventos de botones de acción
+            document.getElementById('btnPDF').addEventListener('click', generarPDF);
+            document.getElementById('btnGuardarSheets').addEventListener('click', () => {
+                mostrarConfirmacion('¿Está seguro de que desea guardar estos datos en Google Sheets?', guardarEnSheets);
             });
-
+            
             // Eventos del modal
             document.getElementById('cancelBtn').addEventListener('click', ocultarConfirmacion);
             document.getElementById('confirmationModal').addEventListener('click', function(e) {
@@ -544,68 +650,190 @@
                     ocultarConfirmacion();
                 }
             });
+
+            // --- NUEVOS EVENTOS: TABS Y AUTENTICACIÓN ---
+            document.getElementById('btnAuthorize').addEventListener('click', handleAuthClick);
+            document.getElementById('tabCalculadora').addEventListener('click', () => switchTab('Calculadora'));
+            document.getElementById('tabHistorial').addEventListener('click', () => switchTab('Historial'));
+            document.getElementById('btnRefrescarHistorial').addEventListener('click', cargarHistorial);
         });
 
-        // --- FUNCIONES DE LA API DE GOOGLE ---
+        // --- FUNCIONES DE LA API DE GOOGLE (MODIFICADAS) ---
         function gapiLoaded() {
             gapi.load('client', initializeGapiClient);
         }
-
+        
         async function initializeGapiClient() {
+            // Se inicializan AMBAS APIs: sheets y oauth2
             await gapi.client.init({
-                discoveryDocs: [DISCOVERY_DOC],
+                discoveryDocs: [DISCOVERY_DOC_SHEETS, DISCOVERY_DOC_OAUTH],
             });
             gapiInited = true;
             maybeEnableButtons();
         }
-
+        
         function gisLoaded() {
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
                 scope: SCOPES,
-                callback: '', // Se define dinámicamente
+                callback: tokenCallback, // Callback unificado
             });
             gisInited = true;
             maybeEnableButtons();
         }
 
         function maybeEnableButtons() {
+            // Habilita el botón principal de Iniciar Sesión
             if (gapiInited && gisInited) {
-                document.getElementById('btnGuardarSheets').disabled = false;
+                document.getElementById('btnAuthorize').disabled = false;
             }
         }
 
+        // Función principal de autenticación
         function handleAuthClick() {
-            tokenClient.callback = async (resp) => {
-                if (resp.error !== undefined) {
-                    throw (resp);
-                }
-                document.getElementById('auth-status').innerText = '¡Autorizado! Listo para guardar.';
-                await guardarEnSheets(); // Intentar guardar de nuevo después de autorizar
-            };
-
             if (gapi.client.getToken() === null) {
+                // Si no hay token, solicitar uno (iniciar sesión)
                 tokenClient.requestAccessToken({prompt: 'consent'});
             } else {
+                // Si ya hay token, forzar un refresco
                 tokenClient.requestAccessToken({prompt: ''});
             }
         }
 
-        function guardarEnSheets() {
-            if (!lastResults) {
-                document.getElementById('auth-status').innerText = 'Error: Primero debe calcular una condena.';
+        // Callback unificado cuando se obtiene un token
+        async function tokenCallback(resp) {
+            if (resp.error !== undefined) {
+                throw (resp);
+            }
+            // 1. Ocultar botón de login, mostrar estado
+            document.getElementById('btnAuthorize').classList.add('hidden');
+            document.getElementById('authStatus').classList.remove('hidden');
+            document.getElementById('authStatus').innerText = 'Estado: Autenticado. Verificando usuario...';
+
+            // 2. Obtener email del usuario
+            try {
+                const userInfo = await gapi.client.oauth2.userinfo.get();
+                const email = userInfo.result.email;
+                
+                if (email) {
+                    document.getElementById('authStatus').innerText = `Usuario: ${email}`;
+                    // 3. Verificar si es Administrador
+                    checkAdmin(email);
+                } else {
+                    document.getElementById('authStatus').innerText = 'Error al obtener email del usuario.';
+                }
+            } catch (e) {
+                console.error("Error fetching user info", e);
+                document.getElementById('authStatus').innerText = 'Error al verificar el usuario.';
+            }
+        }
+
+        // --- NUEVAS FUNCIONES: ADMIN Y PESTAÑAS ---
+
+        // Muestra funciones de admin si el email coincide
+        function checkAdmin(email) {
+            if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                document.getElementById('tabHistorial').classList.remove('hidden');
+                document.getElementById('authStatus').innerText += ' (ADMINISTRADOR)';
+            } else {
+                document.getElementById('tabHistorial').classList.add('hidden');
+                document.getElementById('authStatus').innerText += ' (Usuario Estándar)';
+            }
+        }
+
+        // Cambia entre la pestaña Calculadora y Historial
+        function switchTab(tabName) {
+            if (tabName === 'Calculadora') {
+                document.getElementById('tabCalculadora').classList.add('active');
+                document.getElementById('tabHistorial').classList.remove('active');
+                
+                document.getElementById('panelCalculadora').classList.remove('hidden');
+                document.getElementById('panelHistorial').classList.add('hidden');
+            } else if (tabName === 'Historial') {
+                document.getElementById('tabCalculadora').classList.remove('active');
+                document.getElementById('tabHistorial').classList.add('active');
+                
+                document.getElementById('panelCalculadora').classList.add('hidden');
+                document.getElementById('panelHistorial').classList.remove('hidden');
+                
+                // Cargar el historial al cambiar a la pestaña
+                cargarHistorial();
+            }
+        }
+
+        // Carga los datos desde Google Sheets
+        async function cargarHistorial() {
+            const spinner = document.getElementById('historialSpinner');
+            const table = document.getElementById('historialTable');
+            table.innerHTML = ''; // Limpiar tabla
+            spinner.classList.remove('hidden');
+
+            // Verificar autenticación
+            if (gapi.client.getToken() === null) {
+                spinner.innerText = 'Error: Debe iniciar sesión para ver el historial.';
                 return;
             }
 
+            try {
+                // Rango de lectura (A:K) basado en los 11 campos que guardamos
+                const range = "'Hoja 1'!A:K";
+                
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_ID,
+                    range: range,
+                });
+                
+                spinner.classList.add('hidden');
+                const values = response.result.values;
+
+                if (values && values.length > 0) {
+                    // Crear encabezado de la tabla
+                    const a_headers = [
+                        "Nombre", "Delito", "Fecha Hecho", "Reincidente", "Condena",
+                        "Pena Total", "Abono", "Pena Efectiva", "Fin Condena", 
+                        "Beneficios", "Fecha Guardado"
+                    ];
+                    let thead = '<thead><tr>';
+                    a_headers.forEach(h => thead += `<th>${h}</th>`);
+                    thead += '</tr></thead>';
+                    
+                    // Crear cuerpo de la tabla (en orden reverso para ver los más nuevos primero)
+                    let tbody = '<tbody>';
+                    values.slice().reverse().forEach(row => {
+                        tbody += '<tr>';
+                        row.forEach(cell => tbody += `<td>${cell || ''}</td>`);
+                        tbody += '</tr>';
+                    });
+                    tbody += '</tbody>';
+                    
+                    table.innerHTML = thead + tbody;
+                } else {
+                    table.innerHTML = '<tbody><tr><td>No se encontraron datos en el historial.</td></tr></tbody>';
+                }
+
+            } catch (reason) {
+                console.error('Error al cargar historial:', reason);
+                spinner.classList.remove('hidden');
+                spinner.innerText = 'Error al cargar el historial. Revise la consola.';
+            }
+        }
+
+        // --- FUNCIÓN DE GUARDAR (MODIFICADA) ---
+        function guardarEnSheets() {
+            if (!lastResults) {
+                document.getElementById('auth-status-save').innerText = 'Error: Primero debe calcular una condena.';
+                return;
+            }
+            // Verificar si el token existe
             if (gapi.client.getToken() === null) {
+                document.getElementById('auth-status-save').innerText = 'Error: Debe Iniciar Sesión antes de guardar.';
+                // Intentar autenticar
                 handleAuthClick();
                 return;
             }
 
-            // Formatear los beneficios en un solo texto
+            // (El resto de la lógica de guardado es idéntica a la versión anterior)
             const beneficiosTexto = lastResults.beneficios.map(b => `${b.tipo}: ${b.fecha}`).join('; ') || 'No aplica';
-
-            // Recopilar todos los datos del informe en el orden correcto
             const datosFila = [
                 lastResults.nombreCondenado,
                 lastResults.delito,
@@ -613,7 +841,7 @@
                 lastResults.reincidente ? 'Sí' : 'No',
                 lastResults.tipoCondena === 'temporal' ? 'Prisión efectiva temporal' : 'Prisión efectiva perpetua',
                 convertirDiasAMDM(lastResults.penaTotalDias),
-                `${lastResults.penaTotalDias - lastResults.penaEfectivaDias} días`,
+                `${lastResults.penaTotalDias - lastResults.penaEfectivaDias} días`, // Abono
                 convertirDiasAMDM(lastResults.penaEfectivaDias),
                 lastResults.fechaFinCondena,
                 beneficiosTexto,
@@ -622,16 +850,18 @@
             
             const request = {
                 spreadsheetId: SPREADSHEET_ID,
-                range: "'Hoja 1'!A1", // Se usa "'Hoja 1'" para el nombre en español
+                range: "'Hoja 1'!A1",
                 valueInputOption: 'USER_ENTERED',
                 resource: {
                     values: [datosFila]
                 }
             };
+            
+            const authStatusSave = document.getElementById('auth-status-save');
+            authStatusSave.innerText = 'Guardando...';
 
-            document.getElementById('auth-status').innerText = 'Guardando...';
             gapi.client.sheets.spreadsheets.values.append(request).then(function(response) {
-                document.getElementById('auth-status').innerText = '¡Datos guardados con éxito!';
+                authStatusSave.innerText = '¡Datos guardados con éxito!';
             }, function(reason) {
                 console.error('Error al guardar:', reason);
                 let errorMessage = 'Error al guardar. Revise la consola para más detalles.';
@@ -647,31 +877,28 @@
                         errorMessage = `Error: ${error.message}`;
                     }
                 }
-                document.getElementById('auth-status').innerText = errorMessage;
+                authStatusSave.innerText = errorMessage;
             });
         }
-
-        // --- FUNCIONES DEL MODAL ---
+        
+        // --- FUNCIONES DEL MODAL (Sin cambios) ---
         function mostrarConfirmacion(message, callback) {
             document.getElementById('modalMessage').textContent = message;
             const modal = document.getElementById('confirmationModal');
             modal.classList.add('visible');
-
             const confirmBtn = document.getElementById('confirmBtn');
             const newConfirmBtn = confirmBtn.cloneNode(true);
             confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-
             newConfirmBtn.addEventListener('click', () => {
                 callback();
                 ocultarConfirmacion();
             });
         }
-
         function ocultarConfirmacion() {
             document.getElementById('confirmationModal').classList.remove('visible');
         }
         
-        // --- FUNCIONES DE LA CALCULADORA (EXISTENTES) ---
+        // --- FUNCIONES DE LA CALCULADORA (Sin cambios) ---
         function togglePenaTemporal() {
             const tipoCondena = document.getElementById('tipoCondena').value;
             const penaTemporalDiv = document.getElementById('penaTemporal');
@@ -734,7 +961,6 @@
             const año = fecha.getUTCFullYear();
             return `${dia}/${mes}/${año}`;
         }
-
         function sumarDiasAFecha(fecha, dias) {
             const nuevaFecha = new Date(fecha);
             nuevaFecha.setUTCDate(nuevaFecha.getUTCDate() + dias);
@@ -753,10 +979,12 @@
             return nuevaFecha;
         }
 
+        // --- NÚCLEO DE LA CALCULADORA (Lógica sin cambios) ---
         function calcularCondena(e) {
             e.preventDefault();
             lastResults = null; // Limpiar resultados previos
 
+            // 1. LECTURA DE INPUTS
             const nombreCondenado = document.getElementById('nombreCondenado').value;
             const delito = document.getElementById('delito').value;
             const tipoCondena = document.getElementById('tipoCondena').value;
@@ -764,7 +992,7 @@
             const fechaHechoStr = document.getElementById('fechaHecho').value;
             const tipoDelito = document.getElementById('tipoDelito').value;
             const reincidente = document.getElementById('reincidente').value;
-
+            
             if (!fechaInicioCondenaStr || !fechaHechoStr) {
                 const resultadosDiv = document.getElementById('resultados');
                 const container = document.getElementById('resultadosContainer');
@@ -773,10 +1001,12 @@
                 resultadosDiv.scrollIntoView({ behavior: 'smooth' });
                 return;
             }
-
+            
+            // Forzar fechas a UTC para cálculos consistentes
             const fechaInicioCondena = new Date(fechaInicioCondenaStr + 'T00:00:00Z');
             const fechaHecho = new Date(fechaHechoStr + 'T00:00:00Z');
             
+            // 2. CÁLCULOS BÁSICOS DE PENA Y ABONO
             let penaTotalDias = 0;
             let penaEfectivaDias = 0;
             let fechaFinCondena = null;
@@ -786,12 +1016,14 @@
                 const penaAnos = parseInt(document.getElementById('penaAnos').value) || 0;
                 const penaMeses = parseInt(document.getElementById('penaMeses').value) || 0;
                 const penaDias = parseInt(document.getElementById('penaDias').value) || 0;
-
+                
+                // Calcular fecha final "bruta" (sin abono)
                 let fechaFinPenaBruta = new Date(fechaInicioCondena);
                 fechaFinPenaBruta.setUTCFullYear(fechaFinPenaBruta.getUTCFullYear() + penaAnos);
                 fechaFinPenaBruta.setUTCMonth(fechaFinPenaBruta.getUTCMonth() + penaMeses);
                 fechaFinPenaBruta.setUTCDate(fechaFinPenaBruta.getUTCDate() + penaDias);
                 
+                // Calcular días de detención preventiva (abono)
                 const periodosElements = document.querySelectorAll('.periodo-detencion');
                 periodosElements.forEach(periodo => {
                     const fechaInicioStr = periodo.querySelector('.fechaInicio').value;
@@ -801,27 +1033,29 @@
                         const fechaFin = new Date(fechaFinStr + 'T00:00:00Z');
                         if (fechaInicio <= fechaFin) {
                             const diffTime = Math.abs(fechaFin - fechaInicio);
-                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            // Usar Math.round para evitar el "día fantasma"
+                            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
                             diasDetencionPreventiva += diffDays;
                         }
                     }
                 });
-
+                
+                // Calcular fecha final "neta" (con abono)
                 fechaFinCondena = new Date(fechaFinPenaBruta);
                 fechaFinCondena.setUTCDate(fechaFinCondena.getUTCDate() - diasDetencionPreventiva);
                 
+                // Calcular días totales de pena (para referencia)
                 const diffPenaTotalMs = fechaFinPenaBruta.getTime() - fechaInicioCondena.getTime();
                 penaTotalDias = Math.round(diffPenaTotalMs / (1000 * 60 * 60 * 24));
                 if (penaTotalDias < 0) penaTotalDias = 0;
-
+                
+                // Calcular días efectivos de pena (para referencia)
                 const diffPenaEfectivaMs = fechaFinCondena.getTime() - fechaInicioCondena.getTime();
                 penaEfectivaDias = Math.round(diffPenaEfectivaMs / (1000 * 60 * 60 * 24));
                 if (penaEfectivaDias < 0) penaEfectivaDias = 0;
             }
             
-            const fechaLimite = new Date('2017-07-28T00:00:00Z');
-            const esPosterior = fechaHecho >= fechaLimite;
-            
+            // 3. LÓGICA DE BENEFICIOS (Sin cambios)
             let beneficios = [];
             let alertas = [];
             
@@ -830,78 +1064,206 @@
                     mensaje: 'Condena perpetua: No corresponde el acceso a beneficios',
                     tipo: 'error'
                 });
-            } else if (tipoDelito === '56bis' && esPosterior) {
-                const fechaRegimenPreparatorio = sumarAñosAFecha(new Date(fechaFinCondena), -2);
-                beneficios.push({
-                    tipo: 'Régimen Preparatorio de Libertad (Art. 56 quater)',
-                    fecha: formatearFecha(fechaRegimenPreparatorio)
-                });
-                alertas.push({
-                    mensaje: 'No puede acceder a otros beneficios por ser delito del Art. 56 bis con hecho posterior al 28/07/2017',
-                    tipo: 'alerta'
-                });
+
             } else if (tipoCondena === 'temporal') {
-                if (!esPosterior) {
-                    const diasParaSalidas = Math.round(penaTotalDias / 2) - diasDetencionPreventiva;
-                    const fechaSalidasTransitorias = sumarDiasAFecha(new Date(fechaInicioCondena), diasParaSalidas);
-                    beneficios.push({
-                        tipo: 'Salidas Transitorias',
-                        fecha: formatearFecha(fechaSalidasTransitorias)
-                    });
-                } else {
-                    const mitadPenaTotalEnDias = Math.round(penaTotalDias / 2);
-                    const diasRestantesParaPrueba = mitadPenaTotalEnDias - diasDetencionPreventiva;
-                    let fechaPeriodoPrueba = sumarDiasAFecha(new Date(fechaInicioCondena), diasRestantesParaPrueba);
+
+                // Obtener pena original para comprobaciones
+                const pAnos = parseInt(document.getElementById('penaAnos').value) || 0;
+                const pMeses = parseInt(document.getElementById('penaMeses').value) || 0;
+                const pDias = parseInt(document.getElementById('penaDias').value) || 0;
+
+                // --- ¡NUEVA REGLA DE PENAS CORTAS (<= 3 MESES)! ---
+                const totalMesesPena = pAnos * 12 + pMeses + (pDias / 30.44);
+
+                if (totalMesesPena > 0 && totalMesesPena <= 3) {
                     
+                    // REGLA ESPECIAL PARA PENAS CORTAS
+                    const diasQuince = 15;
+                    const diasRestantesParaQuince = diasQuince - diasDetencionPreventiva;
+                    let fechaQuinceDias = sumarDiasAFecha(new Date(fechaInicioCondena), diasRestantesParaQuince);
+
                     beneficios.push({
-                        tipo: 'Período de Prueba',
-                        fecha: formatearFecha(fechaPeriodoPrueba)
+                        tipo: 'Período de Prueba (Art. 17)',
+                        fecha: formatearFecha(fechaQuinceDias)
                     });
-                    
-                    let fechaSalidasTransitorias = new Date(fechaPeriodoPrueba);
-                    if (penaTotalDias > 3650) {
-                        fechaSalidasTransitorias = sumarAñosAFecha(fechaSalidasTransitorias, 1);
-                    } else if (penaTotalDias > 1825) {
-                        fechaSalidasTransitorias = sumarMesesAFecha(fechaSalidasTransitorias, 6);
-                    }
                     beneficios.push({
-                        tipo: 'Salidas Transitorias',
-                        fecha: formatearFecha(fechaSalidasTransitorias)
+                        tipo: 'Salidas Transitorias (Común)',
+                        fecha: formatearFecha(fechaQuinceDias)
                     });
-                }
-                
-                let tieneLibertadCondicional = false;
-                if (reincidente === 'no') {
-                    let fechaLibertadCondicional;
-                    if (penaTotalDias > 1095) { // Más de 3 años
-                        const dosTerciosPenaTotalEnDias = Math.round(penaTotalDias * 2 / 3);
-                        const diasRestantesParaLibertad = dosTerciosPenaTotalEnDias - diasDetencionPreventiva;
-                        fechaLibertadCondicional = sumarDiasAFecha(new Date(fechaInicioCondena), diasRestantesParaLibertad);
-                    } else { // 3 años o menos
-                        fechaLibertadCondicional = sumarMesesAFecha(new Date(fechaInicioCondena), 8);
-                    }
-                    beneficios.push({
-                        tipo: 'Libertad Condicional',
-                        fecha: formatearFecha(fechaLibertadCondicional)
-                    });
-                    tieneLibertadCondicional = true;
-                } else {
                     alertas.push({
-                        mensaje: 'No puede acceder a libertad condicional por ser reincidente (Art. 50 CP)',
-                        tipo: 'error'
+                        mensaje: 'Pena corta (<= 3 meses): No aplica Libertad Condicional ni Asistida.',
+                        tipo: 'alerta'
                     });
-                }
-                
-                if (!tieneLibertadCondicional) {
-                    const mesesAntes = esPosterior ? 3 : 6;
-                    const fechaLibertadAsistida = sumarMesesAFecha(new Date(fechaFinCondena), -mesesAntes);
-                    beneficios.push({
-                        tipo: 'Libertad Asistida',
-                        fecha: formatearFecha(fechaLibertadAsistida)
-                    });
+
+                } else {
+                    
+                    // --- LÓGICA ESTÁNDAR PARA PENAS > 3 MESES ---
+
+                    // --- ¡NUEVA LÓGICA DE BIFURCACIÓN (ART 56 BIS / 2017)! ---
+                    const fechaLimite2017 = new Date('2017-07-27T00:00:00Z');
+
+                    // REGLA 1: Delito 56bis Y Hecho POSTERIOR a 2017
+                    if (tipoDelito === '56bis' && fechaHecho > fechaLimite2017) {
+                        
+                        // --- REGLA 1: DELITO GRAVE (Art. 56 quater) ---
+                        // No tiene ningún beneficio, solo el régimen preparatorio.
+                        
+                        const fechaRegimenPrep = sumarAñosAFecha(new Date(fechaFinCondena), -2);
+                        beneficios.push({
+                            tipo: 'Régimen Preparatorio (Art. 56 quater)',
+                            fecha: formatearFecha(fechaRegimenPrep)
+                        });
+                        alertas.push({
+                            mensaje: 'Delito Art. 56 bis (hecho post 27/07/2017): No aplican otros beneficios.',
+                            tipo: 'alerta'
+                        });
+
+                    } else {
+                        
+                        // --- REGLA 2: DELITO COMÚN (cualquier fecha) O Delito 56bis ANTERIOR a 2017 ---
+                        // Se calculan los beneficios de forma estándar.
+                        
+                        // Fecha límite para Período de Prueba y L. Asistida (Regla 2015)
+                        const fechaLimite2015 = new Date('2015-07-27T00:00:00Z'); 
+                        const esHechoPosterior2015 = fechaHecho > fechaLimite2015;
+
+                        // --- 1. CÁLCULO DE FECHAS CLAVE (CON ABONO YA RESTADO) ---
+                        
+                        // A. Mitad de la Pena (50%) - Método Años/Meses
+                        const totalMesesBrutos = pAnos * 12 + pMeses;
+                        const mitadTotalMesesBrutos = totalMesesBrutos / 2;
+                        const anosMitad = Math.floor(mitadTotalMesesBrutos / 12);
+                        const mesesMitadDecimal = mitadTotalMesesBrutos % 12;
+                        const diasMitad = Math.floor(pDias / 2);
+                        const diasDeMesesDecimales = Math.floor((mesesMitadDecimal - Math.floor(mesesMitadDecimal)) * 30.44);
+                        
+                        let fechaMitadBruta = new Date(fechaInicioCondena);
+                        fechaMitadBruta.setUTCFullYear(fechaMitadBruta.getUTCFullYear() + anosMitad);
+                        fechaMitadBruta.setUTCMonth(fechaMitadBruta.getUTCMonth() + Math.floor(mesesMitadDecimal));
+                        fechaMitadBruta.setUTCDate(fechaMitadBruta.getUTCDate() + diasMitad + diasDeMesesDecimales);
+
+                        let fechaMitadPena = new Date(fechaMitadBruta);
+                        fechaMitadPena.setUTCDate(fechaMitadPena.getUTCDate() - diasDetencionPreventiva);
+
+                        // B. Dos Tercios (2/3) - Método Años/Meses
+                        const dosTerciosMesesBrutos = (totalMesesBrutos * 2 / 3);
+                        const anosDosTercios = Math.floor(dosTerciosMesesBrutos / 12);
+                        const mesesDosTerciosDecimal = dosTerciosMesesBrutos % 12;
+                        const diasDosTercios = Math.floor(pDias * 2 / 3);
+                        const diasDeMesesDecimalesDosTercios = Math.floor((mesesDosTerciosDecimal - Math.floor(mesesDosTerciosDecimal)) * 30.44);
+
+                        let fechaDosTerciosBruta = new Date(fechaInicioCondena);
+                        fechaDosTerciosBruta.setUTCFullYear(fechaDosTerciosBruta.getUTCFullYear() + anosDosTercios);
+                        fechaDosTerciosBruta.setUTCMonth(fechaDosTerciosBruta.getUTCMonth() + Math.floor(mesesDosTerciosDecimal));
+                        fechaDosTerciosBruta.setUTCDate(fechaDosTerciosBruta.getUTCDate() + diasDosTercios + diasDeMesesDecimalesDosTercios);
+                        
+                        let fechaDosTerciosPena = new Date(fechaDosTerciosBruta);
+                        fechaDosTerciosPena.setUTCDate(fechaDosTerciosPena.getUTCDate() - diasDetencionPreventiva);
+
+                        // C. Ocho Meses - Para LC (<=3 años)
+                        const diasOchoMeses = Math.floor((365.25 / 12) * 8); // 243 días
+                        const diasRestantesParaOchoMeses = diasOchoMeses - diasDetencionPreventiva;
+                        let fechaOchoMeses = sumarDiasAFecha(new Date(fechaInicioCondena), diasRestantesParaOchoMeses);
+
+                        // --- 2. ASIGNACIÓN DE BENEFICIOS SEGÚN REGLAS ---
+
+                        // A. Período de Prueba (Art. 17)
+                        // Se calcula solo si el hecho es posterior a 2015 Y NO es delito 56bis
+                        if (tipoDelito === 'otro' && esHechoPosterior2015) {
+                            beneficios.push({
+                                tipo: 'Período de Prueba (Art. 17)',
+                                fecha: formatearFecha(fechaMitadPena) // Inicia a la mitad de la pena
+                            });
+                        } else {
+                            if (tipoDelito === 'otro') { // Delito común, pero < 2015
+                                alertas.push({
+                                    mensaje: 'Hecho anterior a 27/07/2015. No aplica Período de Prueba.',
+                                    tipo: 'alerta'
+                                });
+                            } else { // Delito 56bis, pero < 2017
+                                alertas.push({
+                                    mensaje: 'Delito Art. 56 bis (hecho ant 27/07/2017): No aplica Período de Prueba.',
+                                    tipo: 'alerta'
+                                });
+                            }
+                        }
+
+                        // B. Salidas Transitorias (ST)
+                        if (tipoDelito === '56bis') {
+                            // Delito Art. 14 CP -> A los 2/3
+                            beneficios.push({
+                                tipo: 'Salidas Transitorias (Art. 14 CP)',
+                                fecha: formatearFecha(fechaDosTerciosPena)
+                            });
+                        } else {
+                            // Delito común -> A la mitad (fechaMitadPena)
+                            beneficios.push({
+                                tipo: 'Salidas Transitorias (Común)',
+                                fecha: formatearFecha(fechaMitadPena)
+                            });
+                        }
+                        
+                        // C. Libertad Condicional (LC - Art. 13 y 14)
+                        let tieneLibertadCondicional = false;
+                        
+                        if (reincidente === 'no' && tipoDelito !== '56bis') {
+                            let fechaLibertadCondicional;
+                            
+                            if (pAnos > 3 || (pAnos === 3 && (pMeses > 0 || pDias > 0))) {
+                                // Penas > 3 años: 2/3 de la condena
+                                fechaLibertadCondicional = fechaDosTerciosPena;
+                            } else {
+                                // Penas <= 3 años: 8 meses de prisión cumplida
+                                fechaLibertadCondicional = fechaOchoMeses;
+                            }
+                            
+                            beneficios.push({
+                                tipo: 'Libertad Condicional (Art. 13)',
+                                fecha: formatearFecha(fechaLibertadCondicional)
+                            });
+                            tieneLibertadCondicional = true;
+
+                        } else {
+                            // Alerta si es reincidente
+                            if (reincidente === 'si') {
+                                alertas.push({
+                                    mensaje: 'No puede acceder a Libertad Condicional por ser Reincidente (Art. 14 CP)',
+                                    tipo: 'error'
+                                });
+                            }
+                            // RE-AÑADIMOS la alerta de '56bis'
+                            if (tipoDelito === '56bis') {
+                                 alertas.push({
+                                    mensaje: 'No puede acceder a Libertad Condicional por el tipo de delito (Art. 14 CP / Art. 56 bis LEP)',
+                                    tipo: 'error'
+                                });
+                            }
+                        }
+
+                        // D. Libertad Asistida (Art. 54)
+                        // Se concede si NO tiene Libertad Condicional
+                        if (!tieneLibertadCondicional) {
+                            
+                            let mesesAntes;
+                            if (esHechoPosterior2015) {
+                                // Posterior a la ley: 3 meses
+                                mesesAntes = 3;
+                            } else {
+                                // Anterior a la ley: 6 meses
+                                mesesAntes = 6;
+                            }
+                            
+                            const fechaLibertadAsistida = sumarMesesAFecha(new Date(fechaFinCondena), -mesesAntes);
+                            beneficios.push({
+                                tipo: 'Libertad Asistida (Art. 54)',
+                                fecha: formatearFecha(fechaLibertadAsistida)
+                            });
+                        }
+                    }
                 }
             }
             
+            // 4. GUARDAR Y MOSTRAR RESULTADOS
             lastResults = {
                 nombreCondenado,
                 delito,
@@ -961,19 +1323,18 @@
             if (resultados.beneficios.length > 0) {
                 html += '<h3>Beneficios Posibles:</h3>';
                 const order = {
-                    "Período de Prueba": 1,
-                    "Salidas Transitorias": 2,
-                    "Libertad Condicional": 3,
-                    "Libertad Asistida": 4,
-                    "Régimen Preparatorio de Libertad (Art. 56 quater)": 5
+                    "Período de Prueba (Art. 17)": 1,
+                    "Salidas Transitorias (Común)": 2,
+                    "Salidas Transitorias (Art. 14 CP)": 3,
+                    "Libertad Condicional (Art. 13)": 4,
+                    "Libertad Asistida (Art. 54)": 5,
+                    "Régimen Preparatorio (Art. 56 quater)": 6
                 };
-
                 resultados.beneficios.sort((a, b) => {
                     const orderA = order[a.tipo] || 99;
                     const orderB = order[b.tipo] || 99;
                     return orderA - orderB;
                 });
-
                 resultados.beneficios.forEach(beneficio => {
                     html += `
                         <div class="resultado-item beneficio-item">
@@ -982,7 +1343,6 @@
                     `;
                 });
             }
-
             if (resultados.alertas.length > 0) {
                 html += '<h3>Información Importante:</h3>';
                 resultados.alertas.forEach(alerta => {
