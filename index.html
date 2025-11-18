@@ -773,13 +773,13 @@
         </div>
     </div>
 
-    <!-- MODAL DE CÓMPUTO FORMAL (ACTUALIZADO) -->
+    <!-- MODAL DE CÓMPUTO FORMAL (ACTUALIZADO CON NUEVOS CAMPOS) -->
     <div id="computoFormalModal" class="modal-overlay">
         <div class="modal-content">
             <h3>Generar Cómputo Formal</h3>
             <p>Complete los datos filiatorios para generar el documento oficial.</p>
             
-            <!-- FORMULARIO ACTUALIZADO CON NUEVOS CAMPOS -->
+            <!-- FORMULARIO ACTUALIZADO CON NUEVOS CAMPOS DE FILIACIÓN -->
             <form id="computoFormalForm" class="computo-formal-form">
                 <div class="form-group">
                     <label for="comp_sentenciaNro">Nº de Sentencia:</label>
@@ -797,16 +797,23 @@
                     <label for="comp_penadoNacionalidad">Nacionalidad:</label>
                     <input type="text" id="comp_penadoNacionalidad" value="argentina" required>
                 </div>
-                <div class="form-group">
+                
+                <div class="form-group form-group-span-2">
                     <label for="comp_penadoDomicilio">Domicilio:</label>
                     <input type="text" id="comp_penadoDomicilio" placeholder="Ej: Villa Parque Chacabuco, calle..." required>
                 </div>
+
+                <!-- NUEVOS CAMPOS DE FILIACIÓN (Padre y Madre) -->
                 <div class="form-group">
-                    <label for="comp_penadoHijoDe">Filiación (Padres):</label>
-                    <input type="text" id="comp_penadoHijoDe" placeholder="Ej: hijo de Julio (f) y de Fabiana (v)" required>
+                    <label for="comp_filiacion_padre">Padre (o Tutor 1):</label>
+                    <input type="text" id="comp_filiacion_padre" placeholder="Ej: Julio Cesar Filippin (f)" required>
+                </div>
+                <div class="form-group">
+                    <label for="comp_filiacion_madre">Madre (o Tutor 2):</label>
+                    <input type="text" id="comp_filiacion_madre" placeholder="Ej: Fabiana Ciro (v)" required>
                 </div>
 
-                <!-- NUEVOS CAMPOS -->
+                <!-- Resto de los campos -->
                 <div class="form-group">
                     <label for="comp_tribunalSentencia">Tribunal de Sentencia:</label>
                     <input type="text" id="comp_tribunalSentencia" placeholder="Ej: Oficina de Gestión de Audiencias" required>
@@ -1338,7 +1345,7 @@
                 return;
             }
 
-            // 2. Recopilar datos del modal (NUEVOS CAMPOS)
+            // 2. Recopilar datos del modal (CAMPOS DE FILIACIÓN ACTUALIZADOS)
             const datosFormales = {
                 sentenciaNro: document.getElementById('comp_sentenciaNro').value,
                 sentenciaFecha: new Date(document.getElementById('comp_sentenciaFecha').value + 'T00:00:00Z'), // UTC
@@ -1346,7 +1353,9 @@
                 penadoDNI: document.getElementById('comp_penadoDNI').value,
                 penadoNacionalidad: document.getElementById('comp_penadoNacionalidad').value,
                 penadoDomicilio: document.getElementById('comp_penadoDomicilio').value,
-                penadoHijoDe: document.getElementById('comp_penadoHijoDe').value,
+                // NUEVOS CAMPOS DE FILIACIÓN
+                penadoPadre: document.getElementById('comp_filiacion_padre').value,
+                penadoMadre: document.getElementById('comp_filiacion_madre').value,
                 prontuarioLetra: document.getElementById('comp_prontuarioLetra').value,
                 prontuarioNro: document.getElementById('comp_prontuarioNro').value,
                 parteResolutiva: document.getElementById('comp_parteResolutiva').value.replace(/\n/g, '<br>') // Preservar saltos de línea
@@ -1392,7 +1401,7 @@
                 beneficiosTextoComputo = "<p>No corresponden beneficios.</p>";
             }
 
-            // 5. Generar el HTML del documento (PLANTILLA ACTUALIZADA)
+            // 5. Generar el HTML del documento (PLANTILLA ACTUALIZADA CON FILIACIÓN Y SANGRÍAS)
             const plantillaComputo = `
                 <!DOCTYPE html>
                 <html lang="es">
@@ -1412,7 +1421,6 @@
                             font-family: 'Times New Roman', Times, serif;
                             font-size: 12pt;
                             line-height: 1.5;
-                            /* Márgenes aplicados por @page en impresión */
                         }
                         p {
                             margin: 0;
@@ -1437,9 +1445,18 @@
                             font-weight: bold;
                             margin-bottom: 20px;
                         }
+                        
+                        /* ESTILOS DE SANGRÍA (ACTUALIZADO) */
                         .informe-body p {
                             margin-bottom: 10px;
+                            /* Sangría para los incisos a, b, c */
+                            margin-left: 1cm;
                         }
+                        .informe-body p:first-child {
+                            /* Anular sangría para el primer párrafo (En virtud...) */
+                            margin-left: 0;
+                        }
+
                         .informe-consecuencia {
                             margin-top: 20px;
                             margin-left: 2cm; /* Sangría para la consecuencia */
@@ -1486,11 +1503,12 @@
                     </div>
 
                     <div class="informe-body">
-                        <p>En virtud a lo ordenado precedentemente, cumplo en informar a Ud. los datos valorados a efectos de practicar el cómputo de pena correspondiente al penado <strong>${lastResults.nombreCondenado}</strong>, y ${datosFormales.penadoNacionalidad}, D.N.I. Nº ${datosFormales.penadoDNI}, domicilio ${datosFormales.penadoDomicilio}, ${datosFormales.penadoHijoDe}, Prio. Letra ${datosFormales.prontuarioLetra} N° ${datosFormales.prontuarioNro} y que según el Informe de Utilidad:</p>
+                        <!-- Párrafo sin sangría (gracias a :first-child) -->
+                        <p>En virtud a lo ordenado precedentemente, cumplo en informar a Ud. los datos valorados a efectos de practicar el cómputo de pena correspondiente al penado <strong>${lastResults.nombreCondenado}</strong>, y ${datosFormales.penadoNacionalidad}, D.N.I. Nº ${datosFormales.penadoDNI}, domicilio ${datosFormales.penadoDomicilio}, hijo de ${datosFormales.penadoPadre} y de ${datosFormales.penadoMadre}, Prio. Letra ${datosFormales.prontuarioLetra} N° ${datosFormales.prontuarioNro} y que según el Informe de Utilidad:</p>
                         
+                        <!-- Párrafos CON sangría (gracias a margin-left: 1cm) -->
                         <p><strong>a)- Fecha del Hecho:</strong> el día ${fechaHechoTexto}.</p>
                         <p><strong>b)- Detención/detenciones:</strong> ${detencionTexto}, permaneciendo en ese estado hasta la fecha.</p>
-                        <!-- Parte resolutiva pegada desde el textarea -->
                         <p><strong>c)- Condena:</strong> ${datosFormales.parteResolutiva}</p>
                     </div>
 
