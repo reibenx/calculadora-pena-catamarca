@@ -348,6 +348,19 @@
             gap: 15px;
         }
 
+        /* --- NUEVO: ESTILOS PARA MODAL CÓMPUTO FORMAL --- */
+        #computoFormalModal .modal-content {
+            max-width: 800px; /* Más ancho para el formulario */
+            text-align: left;
+        }
+        
+        .computo-formal-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Columnas responsivas */
+            gap: 20px;
+            margin-top: 20px;
+        }
+
         /* --- NUEVOS ESTILOS: PESTAÑAS (TABS) --- */
         .auth-section {
             padding: 20px;
@@ -395,7 +408,53 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- NUEVOS ESTILOS: TABLA DE HISTORIAL (MEJORADA) --- */
+        /* --- NUEVOS ESTILOS: PANEL DE VENCIMIENTOS --- */
+        .alertas-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .alerta-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid;
+        }
+        .alerta-card h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .alerta-card.rojo {
+            border-left-color: #dc3545;
+            background: #fff9f9;
+        }
+        .alerta-card.rojo h3 { color: #dc3545; }
+        .alerta-card.naranja {
+            border-left-color: #fd7e14;
+            background: #fffbf5;
+        }
+        .alerta-card.naranja h3 { color: #fd7e14; }
+
+        .alerta-lista {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .alerta-lista li {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+        .alerta-lista li:last-child { border-bottom: none; }
+        .alerta-lista li strong { color: #003366; }
+
+
+        /* --- ESTILOS: TABLA DE HISTORIAL (MEJORADA) --- */
         
         /* Controles de la tabla (búsqueda, exportar) */
         .historial-controles {
@@ -479,6 +538,10 @@
                 width: 50%;
                 font-size: 1.1rem;
             }
+            /* Apilar las tarjetas de alerta en móvil */
+            .alertas-container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -496,14 +559,15 @@
             
             <!-- NUEVA SECCIÓN: AUTENTICACIÓN -->
             <div class="auth-section">
-                <button id="btnAuthorize" class="btn">Iniciar Sesión para Guardar o Ver Historial</button>
+                <button id="btnAuthorize" class="btn">Iniciar Sesión para Guardar o Ver Monitor</button>
                 <div id="authStatus" class="hidden"></div>
             </div>
 
             <!-- NUEVA SECCIÓN: PESTAÑAS -->
             <div class="tabs">
                 <button id="tabCalculadora" class="tab-btn active">Calculadora</button>
-                <button id="tabHistorial" class="tab-btn hidden">Historial</button>
+                <!-- Texto de la pestaña actualizado -->
+                <button id="tabHistorial" class="tab-btn hidden">Monitor de Vencimientos</button>
             </div>
 
             <!-- PESTAÑA 1: CALCULADORA (CONTENIDO EXISTENTE) -->
@@ -600,17 +664,37 @@
                     <div id="resultadosContainer"></div>
                     <button id="btnPDF" class="btn btn-pdf">Generar PDF para Imprimir</button>
                     <button id="btnGuardarSheets" class="btn" style="background: linear-gradient(145deg, #28a745, #1e7e34);">Guardar en Google Sheets</button>
+                    <!-- NUEVO BOTÓN: CÓMPUTO FORMAL -->
+                    <button id="btnGenerarComputoFormal" class="btn" style="background: linear-gradient(145deg, #17a2b8, #117a8b); margin-top: 20px;">Generar Cómputo Formal</button>
                     <div id="auth-status-save" style="margin-top: 15px; font-weight: 500;"></div>
                 </div>
             </div>
 
-            <!-- PESTAÑA 2: HISTORIAL (NUEVA Y MEJORADA) -->
+            <!-- PESTAÑA 2: MONITOR DE VENCIMIENTOS (REDISEÑADA) -->
             <div id="panelHistorial" class="tab-panel hidden">
                 <div class="form-section">
-                    <h2>Historial de Cómputos</h2>
-                    <p>Mostrando todos los cómputos guardados en la hoja de Google Sheets.</p>
+                    <h2>Monitor de Vencimientos</h2>
                     
-                    <!-- NUEVOS CONTROLES DE HISTORIAL -->
+                    <!-- NUEVO: PANEL DE ALERTAS AUTOMÁTICAS -->
+                    <div id="alertas-container" class="alertas-container">
+                        <div class="alerta-card rojo">
+                            <h3>Vencimientos en 30 Días</h3>
+                            <ul id="alertas30Container" class="alerta-lista">
+                                <li>No se encontraron vencimientos.</li>
+                            </ul>
+                        </div>
+                        <div class="alerta-card naranja">
+                            <h3>Vencimientos en 60 Días</h3>
+                            <ul id="alertas60Container" class="alerta-lista">
+                                <li>No se encontraron vencimientos.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Historial y Controles (existentes) -->
+                    <h3>Historial Completo</h3>
+                    <p>Todos los cómputos guardados en la hoja de Google Sheets.</p>
+                    
                     <div class="historial-controles">
                         <input type="text" id="filtroNombre" placeholder="Buscar por nombre...">
                         <button id="btnExportarCSV" class="btn">Exportar a CSV</button>
@@ -619,7 +703,6 @@
 
                     <div id="historialSpinner" class="hidden" style="margin-top: 20px;">Cargando...</div>
                     
-                    <!-- CONTENEDOR DE TABLA MEJORADO CON SCROLL -->
                     <div class="historial-container" style="margin-top: 20px;">
                         <table id="historialTable" class="historial-table">
                             <!-- El contenido se generará dinámicamente -->
@@ -634,6 +717,7 @@
             <p>Create by RBM 2025</p>
         </div>
     </div>
+    
     <!-- Modal de Confirmación -->
     <div id="confirmationModal" class="modal-overlay">
         <div class="modal-content">
@@ -645,9 +729,52 @@
             </div>
         </div>
     </div>
+
+    <!-- NUEVO: Modal de Cómputo Formal -->
+    <div id="computoFormalModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Generar Cómputo Formal</h3>
+            <p>Complete los datos filiatorios para generar el documento oficial.</p>
+            <form id="computoFormalForm" class="computo-formal-form">
+                <div class="form-group">
+                    <label for="comp_sentenciaNro">Nº de Sentencia:</label>
+                    <input type="text" id="comp_sentenciaNro" placeholder="Ej: OCHO/2025" required>
+                </div>
+                <div class="form-group">
+                    <label for="comp_sentenciaFecha">Fecha de Sentencia:</label>
+                    <input type="date" id="comp_sentenciaFecha" required>
+                </div>
+                <div class="form-group">
+                    <label for="comp_penadoDNI">D.N.I.:</label>
+                    <input type="text" id="comp_penadoDNI" placeholder="Ej: 32.681.223" required>
+                </div>
+                <div class="form-group">
+                    <label for="comp_penadoNacionalidad">Nacionalidad:</label>
+                    <input type="text" id="comp_penadoNacionalidad" value="argentina" required>
+                </div>
+                <div class="form-group">
+                    <label for="comp_penadoDomicilio">Domicilio:</label>
+                    <input type="text" id="comp_penadoDomicilio" placeholder="Ej: Villa Parque Chacabuco, calle..." required>
+                </div>
+                <div class="form-group">
+                    <label for="comp_penadoHijoDe">Filiación (Padres):</label>
+                    <input type="text" id="comp_penadoHijoDe" placeholder="Ej: hijo de Julio (f) y de Fabiana (v)" required>
+                </div>
+                <div class="form-group">
+                    <label for="comp_penadoProntuario">Prontuario R.C Nº:</label>
+                    <input type="text" id="comp_penadoProntuario" placeholder="Ej: 26.402" required>
+                </div>
+            </form>
+            <div class="modal-buttons">
+                <button id="confirmComputoFormalBtn" class="btn btn-success">Generar Documento</button>
+                <button id="cancelComputoFormalBtn" class="btn btn-danger">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- NUEVA CONSTANTE DE ADMINISTRADOR (ACTUALIZADA) ---
-        // !!! Email de administrador configurado
+        // --- CONSTANTE DE ADMINISTRADOR (ACTUALIZADA) ---
+        // Email de administrador configurado
         const ADMIN_EMAIL = "rubenmilstein77@gmail.com"; 
 
         // --- VARIABLES GLOBALES PARA LA API DE GOOGLE ---
@@ -661,7 +788,7 @@
         let gapiInited = false;
         let gisInited = false;
         let lastResults = null; // Variable para guardar los últimos resultados calculados
-        let historialData = []; // NUEVO: Almacena los datos del historial para filtrar y exportar
+        let historialData = []; // Almacena los datos del historial para filtrar y exportar
 
         document.addEventListener('DOMContentLoaded', function() {
             // Eventos del formulario y botones
@@ -685,23 +812,31 @@
             // --- NUEVOS EVENTOS: TABS, AUTENTICACIÓN Y FILTROS ---
             document.getElementById('btnAuthorize').addEventListener('click', handleAuthClick);
             document.getElementById('tabCalculadora').addEventListener('click', () => switchTab('Calculadora'));
-            // --- CORRECCIÓN DE ERROR ---
-            // Corregido 'tabHistORIAL' a 'tabHistorial'
             document.getElementById('tabHistorial').addEventListener('click', () => switchTab('Historial'));
             document.getElementById('btnRefrescarHistorial').addEventListener('click', cargarHistorial);
 
-            // NUEVOS: Eventos de búsqueda y exportación
+            // Eventos de búsqueda y exportación
             document.getElementById('filtroNombre').addEventListener('input', filtrarTabla);
             document.getElementById('btnExportarCSV').addEventListener('click', exportarACSV);
+
+            // --- NUEVO: Eventos para el modal de Cómputo Formal ---
+            document.getElementById('btnGenerarComputoFormal').addEventListener('click', mostrarModalComputoFormal);
+            document.getElementById('cancelComputoFormalBtn').addEventListener('click', ocultarModalComputoFormal);
+            document.getElementById('confirmComputoFormalBtn').addEventListener('click', generarComputoFormal);
+            // Cerrar modal de cómputo formal si se hace clic fuera
+            document.getElementById('computoFormalModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    ocultarModalComputoFormal();
+                }
+            });
         });
 
-        // --- FUNCIONES DE LA API DE GOOGLE (MODIFICADAS) ---
+        // --- FUNCIONES DE LA API DE GOOGLE (Sin cambios) ---
         function gapiLoaded() {
             gapi.load('client', initializeGapiClient);
         }
         
         async function initializeGapiClient() {
-            // Se inicializan AMBAS APIs: sheets y oauth2
             await gapi.client.init({
                 discoveryDocs: [DISCOVERY_DOC_SHEETS, DISCOVERY_DOC_OAUTH],
             });
@@ -713,49 +848,41 @@
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
                 scope: SCOPES,
-                callback: tokenCallback, // Callback unificado
+                callback: tokenCallback,
             });
             gisInited = true;
             maybeEnableButtons();
         }
 
         function maybeEnableButtons() {
-            // Habilita el botón principal de Iniciar Sesión
             if (gapiInited && gisInited) {
                 document.getElementById('btnAuthorize').disabled = false;
             }
         }
 
-        // Función principal de autenticación
         function handleAuthClick() {
             if (gapi.client.getToken() === null) {
-                // Si no hay token, solicitar uno (iniciar sesión)
                 tokenClient.requestAccessToken({prompt: 'consent'});
             } else {
-                // Si ya hay token, forzar un refresco
                 tokenClient.requestAccessToken({prompt: ''});
             }
         }
 
-        // Callback unificado cuando se obtiene un token
         async function tokenCallback(resp) {
             if (resp.error !== undefined) {
                 document.getElementById('authStatus').innerText = 'Error de autenticación. Intente de nuevo.';
                 throw (resp);
             }
-            // 1. Ocultar botón de login, mostrar estado
             document.getElementById('btnAuthorize').classList.add('hidden');
             document.getElementById('authStatus').classList.remove('hidden');
             document.getElementById('authStatus').innerText = 'Estado: Autenticado. Verificando usuario...';
 
-            // 2. Obtener email del usuario
             try {
                 const userInfo = await gapi.client.oauth2.userinfo.get();
                 const email = userInfo.result.email;
                 
                 if (email) {
                     document.getElementById('authStatus').innerText = `Usuario: ${email}`;
-                    // 3. Verificar si es Administrador
                     checkAdmin(email);
                 } else {
                     document.getElementById('authStatus').innerText = 'Error al obtener email del usuario.';
@@ -766,9 +893,8 @@
             }
         }
 
-        // --- NUEVAS FUNCIONES: ADMIN, PESTAÑAS Y FILTROS ---
+        // --- FUNCIONES DE ADMIN, PESTAÑAS Y FILTROS (Actualizadas) ---
 
-        // Muestra funciones de admin si el email coincide
         function checkAdmin(email) {
             if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                 document.getElementById('tabHistorial').classList.remove('hidden');
@@ -779,7 +905,6 @@
             }
         }
 
-        // Cambia entre la pestaña Calculadora y Historial
         function switchTab(tabName) {
             if (tabName === 'Calculadora') {
                 document.getElementById('tabCalculadora').classList.add('active');
@@ -794,30 +919,29 @@
                 document.getElementById('panelCalculadora').classList.add('hidden');
                 document.getElementById('panelHistorial').classList.remove('hidden');
                 
-                // Cargar el historial al cambiar a la pestaña
                 cargarHistorial();
             }
         }
 
-        // Carga los datos desde Google Sheets
         async function cargarHistorial() {
             const spinner = document.getElementById('historialSpinner');
             const table = document.getElementById('historialTable');
-            table.innerHTML = ''; // Limpiar tabla
-            historialData = []; // Limpiar datos en memoria
+            table.innerHTML = '';
+            historialData = [];
             spinner.classList.remove('hidden');
             spinner.innerText = 'Cargando...';
+            
+            // Limpiar alertas
+            document.getElementById('alertas30Container').innerHTML = '<li>No se encontraron vencimientos.</li>';
+            document.getElementById('alertas60Container').innerHTML = '<li>No se encontraron vencimientos.</li>';
 
-            // Verificar autenticación
             if (gapi.client.getToken() === null) {
                 spinner.innerText = 'Error: Debe iniciar sesión para ver el historial.';
                 return;
             }
 
             try {
-                // Rango de lectura (A:K) basado en los 11 campos que guardamos
                 const range = "'Hoja 1'!A:K";
-                
                 const response = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: SPREADSHEET_ID,
                     range: range,
@@ -827,8 +951,10 @@
                 const values = response.result.values;
 
                 if (values && values.length > 0) {
-                    historialData = values; // Guardar datos en memoria
-                    renderHistorialTabla(values); // Dibujar la tabla
+                    historialData = values;
+                    renderHistorialTabla(values);
+                    // --- NUEVA LLAMADA ---
+                    procesarYMostrarAlertas(values); // Procesar alertas automáticas
                 } else {
                     table.innerHTML = '<tbody><tr><td>No se encontraron datos en el historial.</td></tr></tbody>';
                 }
@@ -844,10 +970,8 @@
             }
         }
 
-        // NUEVA FUNCIÓN: Dibuja la tabla del historial
         function renderHistorialTabla(data) {
             const table = document.getElementById('historialTable');
-            // Crear encabezado de la tabla
             const a_headers = [
                 "Nombre", "Delito", "Fecha Hecho", "Reincidente", "Condena",
                 "Pena Total", "Abono", "Pena Efectiva", "Fin Condena", 
@@ -857,25 +981,19 @@
             a_headers.forEach(h => thead += `<th>${h}</th>`);
             thead += '</tr></thead>';
             
-            // Crear cuerpo de la tabla (en orden reverso para ver los más nuevos primero)
             let tbody = '<tbody>';
             data.slice().reverse().forEach(row => {
                 tbody += '<tr>';
-                // Asegurarse de que hay 11 celdas
                 for (let i = 0; i < a_headers.length; i++) {
                     tbody += `<td>${row[i] || ''}</td>`;
                 }
                 tbody += '</tr>';
             });
             tbody += '</tbody>';
-            
             table.innerHTML = thead + tbody;
-            
-            // Re-aplicar el filtro actual después de renderizar
             filtrarTabla();
         }
 
-        // NUEVA FUNCIÓN: Filtra la tabla por nombre en tiempo real
         function filtrarTabla() {
             const filtro = document.getElementById('filtroNombre').value.toLowerCase();
             const tabla = document.getElementById('historialTable');
@@ -883,9 +1001,8 @@
             if (!tbody) return;
             
             const filas = tbody.getElementsByTagName('tr');
-
             for (let i = 0; i < filas.length; i++) {
-                const celdaNombre = filas[i].getElementsByTagName('td')[0]; // Columna 0 = Nombre
+                const celdaNombre = filas[i].getElementsByTagName('td')[0];
                 if (celdaNombre) {
                     const textoCelda = (celdaNombre.textContent || celdaNombre.innerText).toLowerCase();
                     if (textoCelda.indexOf(filtro) > -1) {
@@ -897,30 +1014,21 @@
             }
         }
 
-        // NUEVA FUNCIÓN: Exporta los datos del historial a CSV
         function exportarACSV() {
             if (historialData.length === 0) {
                 alert("No hay datos en el historial para exportar.");
                 return;
             }
-
             const headers = [
                 "Nombre", "Delito", "Fecha Hecho", "Reincidente", "Condena",
                 "Pena Total", "Abono", "Pena Efectiva", "Fin Condena", 
                 "Beneficios", "Fecha Guardado"
             ];
             let csvContent = "data:text/csv;charset=utf-8,";
-            
-            // Agregar encabezados
             csvContent += headers.join(",") + "\r\n";
-
-            // Agregar filas
             historialData.forEach(rowArray => {
                 const row = rowArray.map(cell => {
-                    let cellData = (cell || '').toString();
-                    // Escapar comillas dobles duplicándolas
-                    cellData = cellData.replace(/"/g, '""');
-                    // Poner comillas si el dato contiene comas, saltos de línea o comillas
+                    let cellData = (cell || '').toString().replace(/"/g, '""');
                     if (cellData.search(/("|,|\n)/g) >= 0) {
                         cellData = `"${cellData}"`;
                     }
@@ -928,32 +1036,126 @@
                 });
                 csvContent += row.join(",") + "\r\n";
             });
-
-            // Crear y descargar el archivo
             var encodedUri = encodeURI(csvContent);
             var link = document.createElement("a");
             link.setAttribute("href", encodedUri);
             link.setAttribute("download", "historial_computos.csv");
-            document.body.appendChild(link); // Requerido para Firefox
+            document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
-        // --- FUNCIÓN DE GUARDAR (MODIFICADA) ---
+        // --- NUEVAS FUNCIONES: LÓGICA DE ALERTAS ---
+
+        /**
+         * Parsea una fecha en formato DD/MM/AAAA a un objeto Date.
+         * Devuelve null si el formato es inválido.
+         */
+        function parsearFechaAlerta(fechaStr) {
+            if (!fechaStr || typeof fechaStr !== 'string') return null;
+            const parts = fechaStr.split('/');
+            if (parts.length !== 3) return null;
+            // new Date(año, mes (0-11), dia)
+            const fecha = new Date(parts[2], parts[1] - 1, parts[0]);
+            // Verificar si es una fecha válida (evita fechas como 31/02/2025)
+            if (fecha.getFullYear() == parts[2] && (fecha.getMonth() + 1) == parts[1] && fecha.getDate() == parts[0]) {
+                return fecha;
+            }
+            return null;
+        }
+
+        /**
+         * Procesa todos los datos del historial y genera las alertas de vencimiento.
+         */
+        function procesarYMostrarAlertas(data) {
+            const hoy = new Date();
+            // Poner la hora a 00:00:00 para comparar solo días
+            hoy.setHours(0, 0, 0, 0); 
+            
+            const alertas30 = [];
+            const alertas60 = [];
+            const msPorDia = 1000 * 60 * 60 * 24;
+
+            data.forEach(row => {
+                const nombre = row[0];
+                const finCondenaStr = row[8];
+                const beneficiosStr = row[9];
+
+                // 1. Verificar Fin de Condena
+                const fechaFin = parsearFechaAlerta(finCondenaStr);
+                if (fechaFin) {
+                    const diffTime = fechaFin.getTime() - hoy.getTime();
+                    const diffDays = Math.round(diffTime / msPorDia);
+
+                    if (diffDays >= 0 && diffDays <= 30) {
+                        alertas30.push({ nombre, tipo: "Fin de Condena", fecha: finCondenaStr, dias: diffDays });
+                    } else if (diffDays > 30 && diffDays <= 60) {
+                        alertas60.push({ nombre, tipo: "Fin de Condena", fecha: finCondenaStr, dias: diffDays });
+                    }
+                }
+
+                // 2. Verificar Beneficios
+                if (beneficiosStr && beneficiosStr !== 'No aplica') {
+                    const beneficios = beneficiosStr.split(';');
+                    beneficios.forEach(b => {
+                        const parts = b.split(':');
+                        if (parts.length < 2) return; // Formato incorrecto
+                        
+                        const tipoBeneficio = parts[0].trim();
+                        const fechaBeneficioStr = parts[1].trim();
+                        const fechaBeneficio = parsearFechaAlerta(fechaBeneficioStr);
+
+                        if (fechaBeneficio) {
+                            const diffTime = fechaBeneficio.getTime() - hoy.getTime();
+                            const diffDays = Math.round(diffTime / msPorDia);
+
+                            if (diffDays >= 0 && diffDays <= 30) {
+                                alertas30.push({ nombre, tipo: tipoBeneficio, fecha: fechaBeneficioStr, dias: diffDays });
+                            } else if (diffDays > 30 && diffDays <= 60) {
+                                alertas60.push({ nombre, tipo: tipoBeneficio, fecha: fechaBeneficioStr, dias: diffDays });
+                            }
+                        }
+                    });
+                }
+            });
+
+            // 3. Renderizar las alertas
+            renderizarAlertas(alertas30, document.getElementById('alertas30Container'));
+            renderizarAlertas(alertas60, document.getElementById('alertas60Container'));
+        }
+
+        /**
+         * Dibuja la lista de alertas en su contenedor HTML.
+         */
+        function renderizarAlertas(alertas, container) {
+            // Ordenar por días restantes (más cercano primero)
+            alertas.sort((a, b) => a.dias - b.dias);
+
+            if (alertas.length === 0) {
+                container.innerHTML = '<li>No se encontraron vencimientos.</li>';
+                return;
+            }
+
+            let html = '';
+            alertas.forEach(alerta => {
+                html += `<li><strong>${alerta.nombre}</strong>: ${alerta.tipo} el ${alerta.fecha} (en ${alerta.dias} días)</li>`;
+            });
+            container.innerHTML = html;
+        }
+
+
+        // --- FUNCIÓN DE GUARDAR (Sin cambios) ---
         function guardarEnSheets() {
             if (!lastResults) {
                 document.getElementById('auth-status-save').innerText = 'Error: Primero debe calcular una condena.';
                 return;
             }
-            // Verificar si el token existe
             if (gapi.client.getToken() === null) {
                 document.getElementById('auth-status-save').innerText = 'Error: Debe Iniciar Sesión antes de guardar.';
-                // Intentar autenticar
                 handleAuthClick();
                 return;
             }
 
-            // (El resto de la lógica de guardado es idéntica a la versión anterior)
             const beneficiosTexto = lastResults.beneficios.map(b => `${b.tipo}: ${b.fecha}`).join('; ') || 'No aplica';
             const datosFila = [
                 lastResults.nombreCondenado,
@@ -1017,6 +1219,229 @@
         }
         function ocultarConfirmacion() {
             document.getElementById('confirmationModal').classList.remove('visible');
+        }
+
+        // --- NUEVAS FUNCIONES: MODAL DE CÓMPUTO FORMAL ---
+        
+        /**
+         * Muestra el modal para ingresar datos filiatorios.
+         */
+        function mostrarModalComputoFormal() {
+            if (!lastResults) {
+                // Si no hay cálculo, muestra error no-bloqueante
+                document.getElementById('auth-status-save').innerText = 'Error: Primero debe calcular una condena para generar el cómputo.';
+                return;
+            }
+            // Limpiar error anterior
+            document.getElementById('auth-status-save').innerText = '';
+            document.getElementById('computoFormalModal').classList.add('visible');
+        }
+        
+        /**
+         * Oculta el modal de datos filiatorios.
+         */
+        function ocultarModalComputoFormal() {
+            document.getElementById('computoFormalModal').classList.remove('visible');
+        }
+
+        /**
+         * Formatea una fecha (Date object) a texto largo (ej. "06 de agosto de 2025").
+         * Usa UTC para consistencia.
+         */
+        function formatearFechaLarga(fecha) {
+            if (!fecha || !(fecha instanceof Date) || isNaN(fecha)) {
+                return '[Fecha inválida]';
+            }
+            const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+            const dia = fecha.getUTCDate().toString().padStart(2, '0');
+            const mes = meses[fecha.getUTCMonth()];
+            const ano = fecha.getUTCFullYear();
+            return `${dia} de ${mes} del año ${ano}`;
+        }
+
+        /**
+         * Genera el documento de cómputo formal en una nueva ventana.
+         */
+        function generarComputoFormal() {
+            // 1. Validar formulario del modal
+            const form = document.getElementById('computoFormalForm');
+            if (!form.checkValidity()) {
+                form.reportValidity(); // Muestra errores de HTML5
+                return;
+            }
+
+            // 2. Recopilar datos del modal
+            const datosFormales = {
+                sentenciaNro: document.getElementById('comp_sentenciaNro').value,
+                sentenciaFecha: new Date(document.getElementById('comp_sentenciaFecha').value + 'T00:00:00Z'), // UTC
+                penadoDNI: document.getElementById('comp_penadoDNI').value,
+                penadoNacionalidad: document.getElementById('comp_penadoNacionalidad').value,
+                penadoDomicilio: document.getElementById('comp_penadoDomicilio').value,
+                penadoHijoDe: document.getElementById('comp_penadoHijoDe').value,
+                penadoProntuario: document.getElementById('comp_penadoProntuario').value
+            };
+            
+            // 3. Verificar que lastResults exista
+            if (!lastResults) {
+                ocultarModalComputoFormal();
+                document.getElementById('auth-status-save').innerText = 'Error: Se perdieron los resultados del cálculo. Por favor, vuelva a calcular.';
+                return;
+            }
+            
+            // 4. Formatear datos para el template
+            const hoy = new Date(); // Fecha actual
+            const fechaHoyFormateada = formatearFechaLarga(hoy); // Usar hora local para la fecha del documento
+            
+            // Convertir la pena (ej. 12 años, 0 meses, 0 días) a texto
+            const pAnos = parseInt(document.getElementById('penaAnos').value) || 0;
+            const pMeses = parseInt(document.getElementById('penaMeses').value) || 0;
+            const pDias = parseInt(document.getElementById('penaDias').value) || 0;
+            let penaEnTexto = [];
+            if (pAnos > 0) penaEnTexto.push(`${pAnos} año${pAnos > 1 ? 's' : ''}`);
+            if (pMeses > 0) penaEnTexto.push(`${pMeses} mes${pMeses > 1 ? 'es' : ''}`);
+            if (pDias > 0) penaEnTexto.push(`${pDias} día${pDias > 1 ? 's' : ''}`);
+            const penaTexto = penaEnTexto.join(', ') || 'la pena impuesta';
+
+            // Formatear detención/abono
+            const detencionStr = document.getElementById('fechaInicioCondena').value;
+            const detencionTexto = `el día ${formatearFechaLarga(new Date(detencionStr + 'T00:00:00Z'))}`;
+            
+            // Formatear fechas de lastResults (que están en DD/MM/AAAA)
+            const fechaFinCondenaTexto = formatearFechaLarga(parsearFechaAlerta(lastResults.fechaFinCondena));
+            const fechaHechoTexto = formatearFechaLarga(parsearFechaAlerta(lastResults.fechaHecho));
+            
+            let regimenPrepTexto = "No corresponde.";
+            const regimenPrep = lastResults.beneficios.find(b => b.tipo.includes('Régimen Preparatorio'));
+            if (regimenPrep) {
+                regimenPrepTexto = `el día ${formatearFechaLarga(parsearFechaAlerta(regimenPrep.fecha))}`;
+            }
+            
+            // 5. Generar el HTML del documento
+            const plantillaComputo = `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <title>Cómputo de Pena - ${lastResults.nombreCondenado}</title>
+                    <style>
+                        body {
+                            font-family: 'Times New Roman', Times, serif;
+                            font-size: 12pt;
+                            margin: 2.5cm;
+                            line-height: 1.5;
+                        }
+                        p {
+                            margin: 0;
+                            padding: 0;
+                            text-align: justify;
+                        }
+                        .fecha-lugar {
+                            text-align: left;
+                            margin-bottom: 20px;
+                        }
+                        .visto {
+                            margin-bottom: 20px;
+                        }
+                        .firma {
+                            margin-top: 40px;
+                            text-align: right;
+                            width: 40%;
+                            float: right;
+                        }
+                        .informe-header {
+                            text-align: right;
+                            font-weight: bold;
+                            margin-bottom: 20px;
+                        }
+                        .informe-body p {
+                            margin-bottom: 10px;
+                        }
+                        .informe-consecuencia {
+                            margin-top: 20px;
+                            margin-left: 2cm; /* Sangría para la consecuencia */
+                        }
+                        .resolucion-final {
+                            margin-top: 40px;
+                        }
+                        .print-btn {
+                            display: block;
+                            margin: 20px auto;
+                            padding: 10px 20px;
+                            font-family: 'Segoe UI', sans-serif;
+                            background: #0066cc;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            font-weight: bold;
+                        }
+                        @media print {
+                            .print-btn { display: none; }
+                            body { margin: 2cm 2.5cm; } /* Ajustar márgenes de impresión */
+                        }
+                    </style>
+                </head>
+                <body>
+                    <button class="print-btn" onclick="window.print()">Imprimir Documento</button>
+                    
+                    <p class="fecha-lugar">San Fernando del Valle de Catamarca, ${fechaHoyFormateada}.</p>
+                    <p class="visto">Visto el estado del presente legajo y encontrándose firme la Sentencia Nº ${datosFormales.sentenciaNro}, por Secretaría procédase a realizar el cómputo de pena y practíquense las comunicaciones correspondientes.</p>
+                    
+                    <div class="firma">
+                        <p>Ante mí:</p>
+                    </div>
+                    
+                    <br style="clear: both;">
+
+                    <div class="informe-header">
+                        <p>Señor Juez:</p>
+                    </div>
+
+                    <div class="informe-body">
+                        <p>En virtud a lo ordenado precedentemente, cumplo en informar a Ud. los datos valorados a efectos de practicar el cómputo de pena correspondiente al penado <strong>${lastResults.nombreCondenado}</strong>, y ${datosFormales.penadoNacionalidad}, D.N.I. Nº ${datosFormales.penadoDNI}, domicilio en ${datosFormales.penadoDomicilio}, de esta ciudad capital, Pcia. de Catamarca, ${datosFormales.penadoHijoDe}, Prio. R.C N° ${datosFormales.penadoProntuario} y que según el Informe de Utilidad:</p>
+                        
+                        <p><strong>a)- Fecha del Hecho:</strong> el día ${fechaHechoTexto}.</p>
+                        <p><strong>b)- Detención:</strong> ${detencionTexto}, permaneciendo en ese estado hasta la fecha.</p>
+                        <p><strong>c)- Condena:</strong> Sentencia Nro. ${datosFormales.sentenciaNro} de fecha ${formatearFechaLarga(datosFormales.sentenciaFecha)}, dictada por Oficina de Gestión de Audiencia de y que en su parte resolutiva se transcribe a continuación: <strong>RESUELVO: Iº)-</strong> Declarar culpable a <strong>${lastResults.nombreCondenado}</strong>, de condiciones personales ya mencionadas en la causa autor penalmente responsable [...] del delito de <strong>${lastResults.delito}</strong> [...] imponiéndole para su tratamiento penitenciario, la pena de <strong>${penaTexto} de prisión</strong> de cumplimiento efectivo con más accesorias de ley [...].</p>
+                    </div>
+
+                    <div class="informe-consecuencia">
+                        <p>En consecuencia, practicado el cómputo resulta que el penado ${lastResults.nombreCondenado} el cumplirá:</p>
+                        <p><strong>Totalidad de la condena:</strong> el día ${fechaFinCondenaTexto}.</p>
+                        <p><strong>Régimen preparatorio para la libertad 56 quater:</strong> ${regimenPrepTexto}.</p>
+                        <p>Es mi informe. Secretaría del Juzgado de Ejecución Penal de Segunda Nominación, ${fechaHoyFormateada}.</p>
+                    </div>
+
+                    <div class="resolucion-final">
+                        <p class="fecha-lugar">San Fernando del Valle de Catamarca, ${fechaHoyFormateada}.</p>
+                        <p>Atento al informe actuarial que antecede, y practicado el cómputo de pena, notifíquese a las partes para ser observado el mismo por el término de Ley (art. 491 1er. Párrafo del Código Procesal Penal). Notifíquese.</p>
+                    </div>
+                    
+                    <div class="firma">
+                        <p>Ante Mí:</p>
+                    </div>
+
+                    <br style="clear: both;">
+
+                    <button class="print-btn" onclick="window.print()">Imprimir Documento</button>
+                </body>
+                </html>
+            `;
+            
+            // 6. Abrir la nueva ventana y escribir el contenido
+            const ventana = window.open('', '_blank');
+            if (!ventana) {
+                ocultarModalComputoFormal();
+                // Reemplazar alert
+                document.getElementById('auth-status-save').innerText = 'Error: No se pudo abrir una nueva ventana. Permita ventanas emergentes.';
+                return;
+            }
+            ventana.document.write(plantillaComputo);
+            ventana.document.close();
+            ventana.focus();
+            
+            // 7. Cerrar el modal
+            ocultarModalComputoFormal();
         }
         
         // --- FUNCIONES DE LA CALCULADORA (Sin cambios) ---
@@ -1485,14 +1910,16 @@
             try {
                 const contenido = document.getElementById('resultadosContainer').innerHTML;
                 if (!contenido) {
-                    alert('No hay resultados para generar el PDF');
+                    // Reemplazar alert
+                    document.getElementById('auth-status-save').innerText = 'No hay resultados para generar el PDF';
                     return;
                 }
                 
                 const ventana = window.open('', '_blank');
                 
                 if (!ventana) {
-                    alert('No se pudo abrir una nueva ventana. Por favor, permita las ventanas emergentes para este sitio y vuelva a intentarlo.');
+                    // Reemplazar alert
+                    document.getElementById('auth-status-save').innerText = 'No se pudo abrir una nueva ventana. Permita ventanas emergentes.';
                     return;
                 }
                 
@@ -1592,7 +2019,7 @@
                 
             } catch (error) {
                 console.error('Error al generar PDF:', error);
-                alert('Ocurrió un error al generar el PDF. Por favor, intente nuevamente.');
+                document.getElementById('auth-status-save').innerText = 'Ocurrió un error al generar el PDF.';
             }
         }
     </script>
