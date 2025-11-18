@@ -395,25 +395,46 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- NUEVOS ESTILOS: TABLA DE HISTORIAL --- */
+        /* --- NUEVOS ESTILOS: TABLA DE HISTORIAL (MEJORADA) --- */
+        
+        /* Controles de la tabla (búsqueda, exportar) */
+        .historial-controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        #filtroNombre {
+            flex: 1; /* El campo de búsqueda ocupa el espacio disponible */
+            min-width: 250px;
+        }
+        
+        /* Contenedor de la tabla con scroll */
         .historial-container {
-            overflow-x: auto;
+            overflow-x: auto; /* Scroll horizontal en pantallas chicas */
+            overflow-y: auto; /* NUEVO: Scroll vertical */
+            max-height: 500px; /* NUEVO: Altura máxima para la tabla */
+            border: 1px solid #ddd;
+            border-radius: 8px;
         }
         .historial-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            /* margin-top: 20px; */ /* Eliminado, ahora el contenedor tiene el margen */
         }
         .historial-table th, .historial-table td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
             font-size: 0.95rem;
+            white-space: nowrap; /* Evita que el texto largo rompa las celdas */
         }
         .historial-table th {
             background-color: #eef2f7;
             color: #003366;
             font-weight: 700;
+            position: sticky; /* Encabezados fijos */
+            top: 0;
         }
         .historial-table tr:nth-child(even) {
             background-color: #f9fafb;
@@ -583,13 +604,22 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 2: HISTORIAL (NUEVA) -->
+            <!-- PESTAÑA 2: HISTORIAL (NUEVA Y MEJORADA) -->
             <div id="panelHistorial" class="tab-panel hidden">
                 <div class="form-section">
                     <h2>Historial de Cómputos</h2>
                     <p>Mostrando todos los cómputos guardados en la hoja de Google Sheets.</p>
-                    <button id="btnRefrescarHistorial" class="btn">Refrescar Historial</button>
+                    
+                    <!-- NUEVOS CONTROLES DE HISTORIAL -->
+                    <div class="historial-controles">
+                        <input type="text" id="filtroNombre" placeholder="Buscar por nombre...">
+                        <button id="btnExportarCSV" class="btn">Exportar a CSV</button>
+                        <button id="btnRefrescarHistorial" class="btn">Refrescar</button>
+                    </div>
+
                     <div id="historialSpinner" class="hidden" style="margin-top: 20px;">Cargando...</div>
+                    
+                    <!-- CONTENEDOR DE TABLA MEJORADO CON SCROLL -->
                     <div class="historial-container" style="margin-top: 20px;">
                         <table id="historialTable" class="historial-table">
                             <!-- El contenido se generará dinámicamente -->
@@ -616,8 +646,8 @@
         </div>
     </div>
     <script>
-        // --- NUEVA CONSTANTE DE ADMINISTRADOR ---
-        // !!! IMPORTANTE: Reemplace con el email del usuario administrador
+        // --- NUEVA CONSTANTE DE ADMINISTRADOR (ACTUALIZADA) ---
+        // !!! Email de administrador configurado
         const ADMIN_EMAIL = "rubenmilstein77@gmail.com"; 
 
         // --- VARIABLES GLOBALES PARA LA API DE GOOGLE ---
@@ -631,7 +661,8 @@
         let gapiInited = false;
         let gisInited = false;
         let lastResults = null; // Variable para guardar los últimos resultados calculados
-        
+        let historialData = []; // NUEVO: Almacena los datos del historial para filtrar y exportar
+
         document.addEventListener('DOMContentLoaded', function() {
             // Eventos del formulario y botones
             document.getElementById('condenaForm').addEventListener('submit', calcularCondena);
@@ -651,11 +682,17 @@
                 }
             });
 
-            // --- NUEVOS EVENTOS: TABS Y AUTENTICACIÓN ---
+            // --- NUEVOS EVENTOS: TABS, AUTENTICACIÓN Y FILTROS ---
             document.getElementById('btnAuthorize').addEventListener('click', handleAuthClick);
             document.getElementById('tabCalculadora').addEventListener('click', () => switchTab('Calculadora'));
+            // --- CORRECCIÓN DE ERROR ---
+            // Corregido 'tabHistORIAL' a 'tabHistorial'
             document.getElementById('tabHistorial').addEventListener('click', () => switchTab('Historial'));
             document.getElementById('btnRefrescarHistorial').addEventListener('click', cargarHistorial);
+
+            // NUEVOS: Eventos de búsqueda y exportación
+            document.getElementById('filtroNombre').addEventListener('input', filtrarTabla);
+            document.getElementById('btnExportarCSV').addEventListener('click', exportarACSV);
         });
 
         // --- FUNCIONES DE LA API DE GOOGLE (MODIFICADAS) ---
@@ -703,6 +740,7 @@
         // Callback unificado cuando se obtiene un token
         async function tokenCallback(resp) {
             if (resp.error !== undefined) {
+                document.getElementById('authStatus').innerText = 'Error de autenticación. Intente de nuevo.';
                 throw (resp);
             }
             // 1. Ocultar botón de login, mostrar estado
@@ -728,7 +766,7 @@
             }
         }
 
-        // --- NUEVAS FUNCIONES: ADMIN Y PESTAÑAS ---
+        // --- NUEVAS FUNCIONES: ADMIN, PESTAÑAS Y FILTROS ---
 
         // Muestra funciones de admin si el email coincide
         function checkAdmin(email) {
@@ -766,7 +804,9 @@
             const spinner = document.getElementById('historialSpinner');
             const table = document.getElementById('historialTable');
             table.innerHTML = ''; // Limpiar tabla
+            historialData = []; // Limpiar datos en memoria
             spinner.classList.remove('hidden');
+            spinner.innerText = 'Cargando...';
 
             // Verificar autenticación
             if (gapi.client.getToken() === null) {
@@ -787,26 +827,8 @@
                 const values = response.result.values;
 
                 if (values && values.length > 0) {
-                    // Crear encabezado de la tabla
-                    const a_headers = [
-                        "Nombre", "Delito", "Fecha Hecho", "Reincidente", "Condena",
-                        "Pena Total", "Abono", "Pena Efectiva", "Fin Condena", 
-                        "Beneficios", "Fecha Guardado"
-                    ];
-                    let thead = '<thead><tr>';
-                    a_headers.forEach(h => thead += `<th>${h}</th>`);
-                    thead += '</tr></thead>';
-                    
-                    // Crear cuerpo de la tabla (en orden reverso para ver los más nuevos primero)
-                    let tbody = '<tbody>';
-                    values.slice().reverse().forEach(row => {
-                        tbody += '<tr>';
-                        row.forEach(cell => tbody += `<td>${cell || ''}</td>`);
-                        tbody += '</tr>';
-                    });
-                    tbody += '</tbody>';
-                    
-                    table.innerHTML = thead + tbody;
+                    historialData = values; // Guardar datos en memoria
+                    renderHistorialTabla(values); // Dibujar la tabla
                 } else {
                     table.innerHTML = '<tbody><tr><td>No se encontraron datos en el historial.</td></tr></tbody>';
                 }
@@ -814,8 +836,107 @@
             } catch (reason) {
                 console.error('Error al cargar historial:', reason);
                 spinner.classList.remove('hidden');
-                spinner.innerText = 'Error al cargar el historial. Revise la consola.';
+                let errorMessage = 'Error al cargar el historial. Revise la consola.';
+                if (reason.result && reason.result.error && reason.result.error.status === 'PERMISSION_DENIED') {
+                    errorMessage = 'Error: Permiso denegado. Asegúrese de tener permiso para LEER la hoja de cálculo.';
+                }
+                spinner.innerText = errorMessage;
             }
+        }
+
+        // NUEVA FUNCIÓN: Dibuja la tabla del historial
+        function renderHistorialTabla(data) {
+            const table = document.getElementById('historialTable');
+            // Crear encabezado de la tabla
+            const a_headers = [
+                "Nombre", "Delito", "Fecha Hecho", "Reincidente", "Condena",
+                "Pena Total", "Abono", "Pena Efectiva", "Fin Condena", 
+                "Beneficios", "Fecha Guardado"
+            ];
+            let thead = '<thead><tr>';
+            a_headers.forEach(h => thead += `<th>${h}</th>`);
+            thead += '</tr></thead>';
+            
+            // Crear cuerpo de la tabla (en orden reverso para ver los más nuevos primero)
+            let tbody = '<tbody>';
+            data.slice().reverse().forEach(row => {
+                tbody += '<tr>';
+                // Asegurarse de que hay 11 celdas
+                for (let i = 0; i < a_headers.length; i++) {
+                    tbody += `<td>${row[i] || ''}</td>`;
+                }
+                tbody += '</tr>';
+            });
+            tbody += '</tbody>';
+            
+            table.innerHTML = thead + tbody;
+            
+            // Re-aplicar el filtro actual después de renderizar
+            filtrarTabla();
+        }
+
+        // NUEVA FUNCIÓN: Filtra la tabla por nombre en tiempo real
+        function filtrarTabla() {
+            const filtro = document.getElementById('filtroNombre').value.toLowerCase();
+            const tabla = document.getElementById('historialTable');
+            const tbody = tabla.getElementsByTagName('tbody')[0];
+            if (!tbody) return;
+            
+            const filas = tbody.getElementsByTagName('tr');
+
+            for (let i = 0; i < filas.length; i++) {
+                const celdaNombre = filas[i].getElementsByTagName('td')[0]; // Columna 0 = Nombre
+                if (celdaNombre) {
+                    const textoCelda = (celdaNombre.textContent || celdaNombre.innerText).toLowerCase();
+                    if (textoCelda.indexOf(filtro) > -1) {
+                        filas[i].style.display = "";
+                    } else {
+                        filas[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // NUEVA FUNCIÓN: Exporta los datos del historial a CSV
+        function exportarACSV() {
+            if (historialData.length === 0) {
+                alert("No hay datos en el historial para exportar.");
+                return;
+            }
+
+            const headers = [
+                "Nombre", "Delito", "Fecha Hecho", "Reincidente", "Condena",
+                "Pena Total", "Abono", "Pena Efectiva", "Fin Condena", 
+                "Beneficios", "Fecha Guardado"
+            ];
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Agregar encabezados
+            csvContent += headers.join(",") + "\r\n";
+
+            // Agregar filas
+            historialData.forEach(rowArray => {
+                const row = rowArray.map(cell => {
+                    let cellData = (cell || '').toString();
+                    // Escapar comillas dobles duplicándolas
+                    cellData = cellData.replace(/"/g, '""');
+                    // Poner comillas si el dato contiene comas, saltos de línea o comillas
+                    if (cellData.search(/("|,|\n)/g) >= 0) {
+                        cellData = `"${cellData}"`;
+                    }
+                    return cellData;
+                });
+                csvContent += row.join(",") + "\r\n";
+            });
+
+            // Crear y descargar el archivo
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "historial_computos.csv");
+            document.body.appendChild(link); // Requerido para Firefox
+            link.click();
+            document.body.removeChild(link);
         }
 
         // --- FUNCIÓN DE GUARDAR (MODIFICADA) ---
@@ -1477,5 +1598,3 @@
     </script>
 </body>
 </html>
-
-
