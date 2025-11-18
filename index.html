@@ -318,7 +318,7 @@
             font-size: 1rem;
             color: #0c5460;
         }
-        /* --- ESTILOS PARA EL MODAL DE CONFIRMACIÓN --- */
+        /* --- ESTILOS PARA EL MODAL DE CONFIRMACIÓN (ACTUALIZADO) --- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -328,11 +328,16 @@
             background: rgba(0,0,0,0.6);
             display: flex;
             justify-content: center;
-            align-items: center;
+            /* MODIFICADO: Alinea arriba, no al centro */
+            align-items: flex-start;
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s, visibility 0.3s;
+            /* MODIFICADO: Permite scroll en el overlay */
+            overflow-y: auto;
+            /* MODIFICADO: Añade padding vertical para scroll */
+            padding: 5vh 0;
         }
         .modal-overlay.visible {
             opacity: 1;
@@ -363,10 +368,12 @@
             gap: 15px;
         }
 
-        /* --- NUEVO: ESTILOS PARA MODAL CÓMPUTO FORMAL --- */
+        /* --- ESTILOS PARA MODAL CÓMPUTO FORMAL (ACTUALIZADO) --- */
         #computoFormalModal .modal-content {
             max-width: 800px; /* Más ancho para el formulario */
             text-align: left;
+            /* MODIFICADO: Margen inferior para scroll */
+            margin-bottom: 5vh; 
         }
         
         .computo-formal-form {
